@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="assets/css/animate.css" />
     <link rel="stylesheet" href="assets/css/main.css" />
     <style>
-      /* Make the service cards the same height for consistency */
+      /* Make the service cards the same height and width for consistency */
       .service-section .row > [class^="col-"] {
         display: flex;
       }
@@ -24,8 +24,9 @@
         justify-content: stretch;
         align-items: stretch;
         height: 100%;
-        min-height: 220px; /* You can adjust this value based on your design */
+        min-height: 220px;
         box-sizing: border-box;
+        width: 100%; /* Ensures each card uses the full width of its column */
       }
       .single-service .icon {
         margin-bottom: 24px;
@@ -36,6 +37,19 @@
         align-items: center;
         justify-content: center;
         flex-direction: column;
+      }
+      /* Fix: Ensure all col-*-* have equal width in .row and no flex-shrink */
+      .service-section .row > [class^="col-"] {
+        flex: 1 1 0;
+        min-width: 0;
+        max-width: 100%;
+      }
+      @media (min-width: 1200px) {
+        /* Ensures 4 columns are exactly 25% on xl screens for equal width */
+        .service-section .row > .col-xl-3 {
+          flex: 0 0 25%;
+          max-width: 25%;
+        }
       }
     </style>
   </head>
@@ -95,6 +109,16 @@
               </div>
               <div class="content">
                 <h3>Static Electricity</h3>
+              </div>
+            </a>
+          </div>
+          <div class="col-xl-3 col-md-6 d-flex">
+            <a class="single-service" href="experiments/physics/magnetism/index.html" target="_blank" rel="noopener">
+              <div class="icon color-2">
+                <i class="lni lni-magnet"></i>
+              </div>
+              <div class="content">
+                <h3>Magnetism</h3>
               </div>
             </a>
           </div>
