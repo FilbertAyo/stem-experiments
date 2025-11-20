@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Archimedes' Principle — Interactive Experiment</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
+    #container{position:fixed;inset:0;background:#111}
+    canvas{display:block}
+    .ui {
+      position: absolute; left: 12px; top: 12px; width: 320px;
+      background: rgba(255,255,255,0.06); color: #fff; padding:12px;
+      border-radius:8px; backdrop-filter: blur(4px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+    }
+    .ui h3{margin:0 0 8px 0;font-size:16px}
+    .row{display:flex;align-items:center;gap:8px;margin:8px 0}
+    .row label{width:70px;font-size:13px}
+    input[type="range"]{flex:1}
+    button{background:#0ea5a4;border:0;padding:8px 10px;border-radius:6px;color:#032;cursor:pointer}
+    button.secondary{background:#2a2832;color:#fff}
+    .result{margin-top:8px;padding:8px;border-radius:6px;background:rgba(255,255,255,0.04)}
+    .result-row{display:flex;justify-content:space-between;margin:4px 0;font-size:13px}
+    .result-label{color:#c9c9c9}
+    .result-value{font-weight:600;color:#0ea5a4}
+    .small{font-size:12px;color:#c9c9c9}
+    .footer{position:absolute;left:12px;bottom:12px;color:#ddd;font-size:13px;background:rgba(0,0,0,0.35);padding:8px;border-radius:6px}
+    .status-panel{margin-top:10px;padding:10px;background:rgba(0,0,0,0.2);border-radius:6px}
+    .status-item{margin:6px 0;font-size:13px;display:flex;justify-content:space-between}
+    .status-label{color:#c9c9c9}
+    .status-value{font-weight:600}
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+
+  <div class="ui" id="controls">
+    <h3>Archimedes' Principle — Experiment</h3>
+
+    <div class="row">
+      <label>Density</label>
+      <input id="densityRange" type="range" min="500" max="8000" step="100" value="2500" />
+      <div id="densityVal" class="small">2500 kg/m³</div>
+    </div>
+
+    <div class="row">
+      <label>Volume</label>
+      <input id="volumeRange" type="range" min="0.001" max="0.01" step="0.001" value="0.002" />
+      <div id="volumeVal" class="small">0.002 m³</div>
+    </div>
+
+    <div class="row" style="margin-top:6px">
+      <button id="startBtn">Start Experiment</button>
+      <button id="resetBtn" class="secondary">Reset</button>
+    </div>
+
+    <div class="status-panel">
+      <div class="status-item">
+        <span class="status-label">Weight in Air:</span>
+        <span class="status-value" id="weightAir">0.00 N</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Apparent Weight:</span>
+        <span class="status-value" id="weightWater">0.00 N</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Buoyant Force:</span>
+        <span class="status-value" id="buoyantForce">0.00 N</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Displaced Volume:</span>
+        <span class="status-value" id="displacedVol">0.000 m³</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Weight of Displaced Water:</span>
+        <span class="status-value" id="weightDisplaced">0.00 N</span>
+      </div>
+    </div>
+
+    <div class="result" style="margin-top:10px">
+      <div class="result-row">
+        <span class="result-label">Principle Verified:</span>
+        <span class="result-value" id="principleStatus">—</span>
+      </div>
+      <div class="small" style="margin-top:6px">
+        Buoyant Force = Weight of Displaced Water
+      </div>
+    </div>
+
+    <div class="small" style="margin-top:8px">
+      Adjust density and volume, then press Start. The object will be submerged in water. Observe the spring balance readings and verify Archimedes' Principle.
+    </div>
+  </div>
+
+  <div class="footer">Archimedes' Principle Experiment — Buoyant Force = Weight of Displaced Fluid</div>
+
+  <!-- Three.js and cannon-es physics (CDN) -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"
+      }
+    }
+  </script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import * as CANNON from 'https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js';
+    // ====== Scene + Physics setup ======
+    const container = document.getElementById('container');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x1b2430);
+
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(1.5, 1.2, 2.5);
+    camera.lookAt(0, 0.6, 0);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    container.appendChild(renderer.domElement);
+
+    // orbit controls for desktop inspection
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.target.set(0, 0.6, 0);
+    controls.update();
+
+    // lights
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.0));
+    const d = new THREE.DirectionalLight(0xffffff, 0.8);
+    d.position.set(5, 10, 7);
+    d.castShadow = true;
+    scene.add(d);
+    
+    // Add ambient light for better visibility
+    const ambient = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambient);
+
+    // physics world
+    const world = new CANNON.World({ gravity: new CANNON.Vec3(0, -9.82, 0) });
+    world.solver.iterations = 10;
+
+    // water density (kg/m³)
+    const WATER_DENSITY = 1000;
+    const GRAVITY = 9.82;
+
+    // ====== Beaker/Container ======
+    const beakerRadius = 0.4;
+    const beakerHeight = 1.2;
+    const waterLevel = 0.8; // water height in beaker
+
+    // beaker visual (cylinder) - make it more visible
+    const beakerGeo = new THREE.CylinderGeometry(beakerRadius, beakerRadius, beakerHeight, 32);
+    const beakerMat = new THREE.MeshStandardMaterial({ 
+      color: 0xffffff, 
+      transparent: true, 
+      opacity: 0.4,
+      side: THREE.DoubleSide,
+      metalness: 0.3,
+      roughness: 0.7
+    });
+    const beakerMesh = new THREE.Mesh(beakerGeo, beakerMat);
+    beakerMesh.position.y = beakerHeight / 2;
+    scene.add(beakerMesh);
+    
+    // Add beaker rim for better visibility
+    const rimGeo = new THREE.TorusGeometry(beakerRadius, 0.02, 16, 32);
+    const rimMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
+    const rimMesh = new THREE.Mesh(rimGeo, rimMat);
+    rimMesh.position.y = beakerHeight;
+    rimMesh.rotation.x = Math.PI / 2;
+    scene.add(rimMesh);
+
+    // water visual - make it more visible
+    const waterGeo = new THREE.CylinderGeometry(beakerRadius * 0.95, beakerRadius * 0.95, waterLevel, 32);
+    const waterMat = new THREE.MeshStandardMaterial({ 
+      color: 0x2196F3, 
+      transparent: true, 
+      opacity: 0.7,
+      side: THREE.DoubleSide,
+      metalness: 0.1,
+      roughness: 0.2
+    });
+    const waterMesh = new THREE.Mesh(waterGeo, waterMat);
+    waterMesh.position.y = waterLevel / 2;
+    scene.add(waterMesh);
+
+    // water physics body (for buoyancy)
+    const waterBody = new CANNON.Body({ type: CANNON.Body.STATIC });
+    const waterShape = new CANNON.Cylinder(beakerRadius * 0.95, beakerRadius * 0.95, waterLevel, 32);
+    waterBody.addShape(waterShape);
+    waterBody.position.set(0, waterLevel / 2, 0);
+    waterBody.quaternion.setFromEuler(0, 0, 0);
+    world.addBody(waterBody);
+
+    // floor - make it more visible
+    const floorGeo = new THREE.PlaneGeometry(4, 4);
+    const floorMat = new THREE.MeshStandardMaterial({ 
+      color: 0x333333,
+      roughness: 0.8,
+      metalness: 0.1
+    });
+    const floorMesh = new THREE.Mesh(floorGeo, floorMat);
+    floorMesh.rotation.x = -Math.PI / 2;
+    floorMesh.position.y = 0;
+    floorMesh.receiveShadow = true;
+    scene.add(floorMesh);
+
+    const groundBody = new CANNON.Body({ type: CANNON.Body.STATIC, shape: new CANNON.Plane() });
+    groundBody.quaternion.setFromEuler(-Math.PI/2, 0, 0);
+    world.addBody(groundBody);
+
+    // ====== Object (Stone) ======
+    let objectMesh, objectBody;
+    let objectDensity = 2500; // kg/m³
+    let objectVolume = 0.002; // m³
+
+    function createObject(density, volume) {
+    // calculate radius for sphere with given volume
+    const radius = Math.pow(volume * 3 / (4 * Math.PI), 1/3);
+    const mass = density * volume;
+
+    // visual - make stone more visible
+    if (objectMesh) scene.remove(objectMesh);
+    const sphereGeo = new THREE.SphereGeometry(radius, 24, 24);
+    const sphereMat = new THREE.MeshStandardMaterial({ 
+      color: 0x8b7355,
+      roughness: 0.8,
+      metalness: 0.2
+    });
+    objectMesh = new THREE.Mesh(sphereGeo, sphereMat);
+    objectMesh.castShadow = true;
+    objectMesh.receiveShadow = true;
+    scene.add(objectMesh);
+
+    // physics
+    if (objectBody) world.removeBody(objectBody);
+    const sphereShape = new CANNON.Sphere(radius);
+    objectBody = new CANNON.Body({ mass: mass, shape: sphereShape });
+    objectBody.linearDamping = 0.5;
+    objectBody.angularDamping = 0.5;
+    
+    world.addBody(objectBody);
+    
+    return { radius, mass };
+  }
+
+    // Spring balance visual (chain/thread)
+    const springLine = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(0, 0.5, 0)
+      ]),
+      new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 3 })
+    );
+    scene.add(springLine);
+    
+    // Add a hook/attachment point at top
+    const hookGeo = new THREE.ConeGeometry(0.03, 0.1, 8);
+    const hookMat = new THREE.MeshStandardMaterial({ color: 0xcccccc });
+    const hookMesh = new THREE.Mesh(hookGeo, hookMat);
+    hookMesh.position.y = 1.5;
+    scene.add(hookMesh);
+
+    // ====== Experiment state ======
+    let experimentRunning = false;
+    let objectInitialized = false;
+    let weightInAir = 0;
+    let apparentWeight = 0;
+    let buoyantForce = 0;
+    let displacedVolume = 0;
+
+    // ====== UI wiring ======
+    const densityRange = document.getElementById('densityRange');
+  const densityVal = document.getElementById('densityVal');
+  const volumeRange = document.getElementById('volumeRange');
+  const volumeVal = document.getElementById('volumeVal');
+  const startBtn = document.getElementById('startBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const weightAirEl = document.getElementById('weightAir');
+  const weightWaterEl = document.getElementById('weightWater');
+  const buoyantForceEl = document.getElementById('buoyantForce');
+  const displacedVolEl = document.getElementById('displacedVol');
+  const weightDisplacedEl = document.getElementById('weightDisplaced');
+  const principleStatusEl = document.getElementById('principleStatus');
+
+    densityRange.addEventListener('input', () => {
+      objectDensity = parseFloat(densityRange.value);
+      densityVal.textContent = objectDensity + ' kg/m³';
+      if (objectInitialized) {
+        const { mass } = createObject(objectDensity, objectVolume);
+        weightInAir = mass * GRAVITY;
+        updateDisplay();
+      }
+    });
+
+    volumeRange.addEventListener('input', () => {
+      objectVolume = parseFloat(volumeRange.value);
+      volumeVal.textContent = objectVolume.toFixed(3) + ' m³';
+      if (objectInitialized) {
+        const { mass } = createObject(objectDensity, objectVolume);
+        weightInAir = mass * GRAVITY;
+        updateDisplay();
+      }
+    });
+
+    startBtn.addEventListener('click', () => {
+      if (experimentRunning) return;
+      
+      experimentRunning = true;
+      const { mass } = createObject(objectDensity, objectVolume);
+      weightInAir = mass * GRAVITY;
+      
+      // Position object above water
+      objectMesh.position.set(0, waterLevel + 0.3, 0);
+      objectBody.position.set(0, waterLevel + 0.3, 0);
+      objectBody.velocity.set(0, 0, 0);
+      objectBody.angularVelocity.set(0, 0, 0);
+      
+      objectInitialized = true;
+      updateDisplay();
+    });
+
+    resetBtn.addEventListener('click', () => {
+      experimentRunning = false;
+      objectInitialized = false;
+      
+      if (objectMesh) scene.remove(objectMesh);
+      if (objectBody) world.removeBody(objectBody);
+      objectMesh = null;
+      objectBody = null;
+      
+      weightInAir = 0;
+      apparentWeight = 0;
+      buoyantForce = 0;
+      displacedVolume = 0;
+      updateDisplay();
+    });
+
+    function calculateBuoyancy() {
+    if (!objectBody || !objectInitialized) return;
+    
+    const objectY = objectBody.position.y;
+    const radius = Math.pow(objectVolume * 3 / (4 * Math.PI), 1/3);
+    const waterTop = waterLevel;
+    const waterBottom = 0;
+    
+    // Check if object is in water
+    const topOfObject = objectY + radius;
+    const bottomOfObject = objectY - radius;
+    
+    if (bottomOfObject < waterTop && topOfObject > waterBottom) {
+      // Object is at least partially in water
+      let submergedHeight = 0;
+      
+      if (bottomOfObject >= waterBottom && topOfObject <= waterTop) {
+        // Fully submerged within water bounds
+        submergedHeight = 2 * radius;
+        displacedVolume = objectVolume;
+      } else if (bottomOfObject < waterBottom && topOfObject > waterTop) {
+        // Object spans entire water column
+        displacedVolume = objectVolume;
+      } else if (bottomOfObject < waterBottom) {
+        // Partially submerged from bottom
+        submergedHeight = topOfObject - waterBottom;
+        if (submergedHeight > 2 * radius) submergedHeight = 2 * radius;
+        // Volume of spherical cap: V = (πh²(3r - h)) / 3
+        displacedVolume = (Math.PI * submergedHeight * submergedHeight * (3 * radius - submergedHeight)) / 3;
+      } else if (topOfObject > waterTop) {
+        // Partially submerged from top
+        submergedHeight = waterTop - bottomOfObject;
+        if (submergedHeight > 2 * radius) submergedHeight = 2 * radius;
+        // Volume of spherical cap
+        displacedVolume = (Math.PI * submergedHeight * submergedHeight * (3 * radius - submergedHeight)) / 3;
+      }
+      
+      // Clamp to object volume
+      displacedVolume = Math.min(displacedVolume, objectVolume);
+      displacedVolume = Math.max(0, displacedVolume);
+      
+      // Calculate buoyant force
+      buoyantForce = WATER_DENSITY * displacedVolume * GRAVITY;
+      
+      // Apply buoyant force to physics body
+      const force = new CANNON.Vec3(0, buoyantForce, 0);
+      objectBody.applyForce(force, objectBody.position);
+      
+      // Apparent weight = weight in air - buoyant force
+      apparentWeight = Math.max(0, weightInAir - buoyantForce);
+    } else {
+      displacedVolume = 0;
+      buoyantForce = 0;
+      apparentWeight = weightInAir;
+    }
+  }
+
+    function updateDisplay() {
+    // Don't recalculate here - it's done in animate loop
+    // Just update the display
+    
+    weightAirEl.textContent = weightInAir.toFixed(2) + ' N';
+    weightWaterEl.textContent = apparentWeight.toFixed(2) + ' N';
+    buoyantForceEl.textContent = buoyantForce.toFixed(2) + ' N';
+    displacedVolEl.textContent = displacedVolume.toFixed(4) + ' m³';
+    
+    const weightOfDisplaced = WATER_DENSITY * displacedVolume * GRAVITY;
+    weightDisplacedEl.textContent = weightOfDisplaced.toFixed(2) + ' N';
+    
+    // Verify principle (allow small tolerance for floating point)
+    const diff = Math.abs(buoyantForce - weightOfDisplaced);
+    if (displacedVolume > 0.0001) {
+      if (diff < 0.5) {
+        principleStatusEl.textContent = '✓ Verified';
+        principleStatusEl.style.color = '#0ea5a4';
+      } else {
+        principleStatusEl.textContent = 'Calculating...';
+        principleStatusEl.style.color = '#c9c9c9';
+      }
+    } else {
+      principleStatusEl.textContent = '—';
+      principleStatusEl.style.color = '#c9c9c9';
+    }
+    
+    // Update spring line position
+    if (objectMesh && objectInitialized) {
+      springLine.position.set(objectMesh.position.x, objectMesh.position.y + 0.3, objectMesh.position.z);
+      const springLength = 0.3 + (buoyantForce / (weightInAir || 1)) * 0.2;
+      springLine.geometry.setFromPoints([
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(0, springLength, 0)
+      ]);
+    }
+  }
+
+    // resize handling
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // ===== main loop =====
+    const fixedTimeStep = 1/60;
+    let lastTime;
+
+    function animate(time) {
+      requestAnimationFrame(animate);
+      if (!lastTime) lastTime = time;
+      const dt = (time - lastTime) / 1000;
+      lastTime = time;
+
+      // Apply buoyancy before physics step
+      if (experimentRunning && objectBody && objectInitialized) {
+        calculateBuoyancy();
+      }
+
+      // step physics
+      world.step(fixedTimeStep, dt, 3);
+
+      // update meshes from physics
+      if (objectMesh && objectBody) {
+        objectMesh.position.copy(objectBody.position);
+        objectMesh.quaternion.copy(objectBody.quaternion);
+      }
+
+      // update display every frame
+      if (experimentRunning) {
+        updateDisplay();
+      }
+
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    // initial setup
+    animate();
+  </script>
+</body>
+</html>
+

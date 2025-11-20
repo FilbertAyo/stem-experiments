@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html class="no-js" lang="">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <title>STEM LAB || Experiment</title>
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.svg"/>
+    
+    <link rel="stylesheet" href="assets/css/bootstrap-5.0.0-beta2.min.css" />
+    <link rel="stylesheet" href="assets/css/LineIcons.2.0.css" />
+    <link rel="stylesheet" href="assets/css/tiny-slider.css" />
+    <link rel="stylesheet" href="assets/css/animate.css" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <style>
+      /* Make the service cards the same height for consistency */
+      .service-section .row > [class^="col-"] {
+        display: flex;
+      }
+      .single-service {
+        display: flex;
+        flex-direction: column;
+        justify-content: stretch;
+        align-items: stretch;
+        height: 100%;
+        min-height: 220px; /* You can adjust this value based on your design */
+        box-sizing: border-box;
+      }
+      .single-service .icon {
+        margin-bottom: 24px;
+      }
+      .single-service .content {
+        flex: 1 1 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="preloader">
+      <div class="loader">
+        <div class="spinner">
+          <div class="spinner-container">
+            <div class="spinner-rotator">
+              <div class="spinner-left">
+                <div class="spinner-circle"></div>
+              </div>
+              <div class="spinner-right">
+                <div class="spinner-circle"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+		
+    <section id="service" class="service-section img-bg pt-100 pb-100">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-xxl-5 col-xl-6 col-lg-7 col-md-10">
+            <div class="section-title text-center mb-50">
+              <h1>Experments</h1>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-xl-3 col-md-6 d-flex">
+            <a class="single-service" href="experiments/physics/interactive-cube/index.html" target="_blank" rel="noopener">
+              <div class="icon color-2">
+                <i class="lni lni-layers"></i>
+              </div>
+              <div class="content">
+                <h3>Interactive Cube</h3>
+              </div>
+            </a>
+          </div>
+          <div class="col-xl-3 col-md-6 d-flex">
+            <a class="single-service" href="experiments/physics/archimedes/index.html" target="_blank" rel="noopener">
+              <div class="icon color-2">
+                <i class="lni lni-code-alt"></i>
+              </div>
+              <div class="content">
+                <h3>Archimedes' Principle</h3>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <a href="#" class="scroll-top btn-hover">
+      <i class="lni lni-chevron-up"></i>
+    </a>
+
+    <!-- ========================= JS here ========================= -->
+    <script src="assets/js/bootstrap-5.0.0-beta2.min.js"></script>
+    <script src="assets/js/count-up.min.js"></script>
+    <script src="assets/js/tiny-slider.js"></script>
+    <script src="assets/js/wow.min.js"></script>
+    <script src="assets/js/polifill.js"></script>
+    <script src="assets/js/main.js"></script>
+  </body>
+</html>
