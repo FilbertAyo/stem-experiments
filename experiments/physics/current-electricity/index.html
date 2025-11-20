@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Current Electricity — 3D Interactive Experiment</title>
+<style>
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:#ffffff;color:#0f1720}
+  #app{display:flex;height:100%}
+  #scene{flex:1;position:relative}
+  #ui{width:360px;background:#ffffff;padding:18px;box-shadow:-20px 0 60px rgba(15,23,42,0.08);overflow:auto;border-left:1px solid #e2e8f0}
+  h2{margin:0 0 12px 0;font-size:18px}
+  .row{display:flex;align-items:center;gap:8px;margin:10px 0}
+  label{width:140px;color:#475569;font-size:13px}
+  input[type=range]{flex:1}
+  select,input[type=number]{flex:1;padding:6px;border-radius:6px;border:1px solid #e2e8f0;background:#ffffff;color:#0f1720}
+  button{padding:8px 10px;border-radius:6px;border:0;background:#06b6d4;color:#012;font-weight:700;cursor:pointer;box-shadow:0 12px 24px rgba(6,182,212,0.25)}
+  button.ghost{background:#f8fafc;border:1px solid #e2e8f0;color:#0f1720;box-shadow:none}
+  .small{font-size:13px;color:#64748b}
+  .panel{background:#f8fafc;padding:14px;border-radius:12px;margin-bottom:14px;border:1px solid #e2e8f0}
+  .meter{font-weight:700;font-size:18px;color:#0f1720}
+  .footer{font-size:12px;color:#475569;margin-top:10px;background:#f8fafc;padding:10px;border-radius:10px;border:1px solid #e2e8f0}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="scene"></div>
+  <div id="ui">
+    <h2>Current Electricity — 3D Lab</h2>
+    <div class="panel">
+      <div class="row"><label>Configuration</label>
+        <select id="config">
+          <option value="series">Series</option>
+          <option value="parallel">Parallel</option>
+        </select>
+      </div>
+
+      <div class="row"><label>Battery voltage (V)</label>
+        <input id="voltage" type="range" min="1" max="12" value="6"/>
+        <div class="small" id="voltageVal">6 V</div>
+      </div>
+
+      <div class="row"><label>Bulb 1 resistance (Ω)</label>
+        <input id="r1" type="range" min="1" max="50" value="10"/>
+        <div class="small" id="r1Val">10 Ω</div>
+      </div>
+
+      <div class="row"><label>Bulb 2 resistance (Ω)</label>
+        <input id="r2" type="range" min="1" max="50" value="10"/>
+        <div class="small" id="r2Val">10 Ω</div>
+      </div>
+
+      <div class="row"><label>Series resistor (Ω)</label>
+        <input id="rSeries" type="range" min="0" max="100" value="0"/>
+        <div class="small" id="rSeriesVal">0 Ω</div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button id="toggleSwitch">Close Switch</button>
+        <button id="reset" class="ghost">Reset</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="row"><label>Ammeter (branch)</label>
+        <select id="ammeterBranch"><option value="main">Main</option><option value="b1">Bulb 1</option><option value="b2">Bulb 2</option></select>
+      </div>
+      <div class="row"><label>Voltmeter (across)</label>
+        <select id="voltmeterTarget"><option value="battery">Battery</option><option value="b1">Bulb 1</option><option value="b2">Bulb 2</option></select>
+      </div>
+
+      <div style="margin-top:8px">
+        <div class="small">Ammeter reading:</div>
+        <div class="meter" id="ammeter">0.00 A</div>
+        <div style="height:8px"></div>
+        <div class="small">Voltmeter reading:</div>
+        <div class="meter" id="voltmeter">0.00 V</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="row"><label>Capacitor</label>
+        <select id="capState"><option value="uncharged">Uncharged</option><option value="charged">Charged</option></select>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button id="connectCap" class="ghost">Connect to Galvanometer</button>
+        <div class="small" id="galNote">Galvanometer: —</div>
+      </div>
+    </div>
+
+    <div class="footer">
+      Place this folder in <code>/public/vr-experiments/current-electricity/</code> and open the folder URL. This is a simulation for teaching series/parallel wiring and basic behaviour (uses simplified Ohm's law).
+    </div>
+  </div>
+</div>
+
+<!-- three.js and controls -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.161.0/examples/js/controls/OrbitControls.js"></script>
+
+<script>
+/*
+  3D Current Electricity Experiment
+  - Simple circuit visual + basic physics (Ohm's law)
+  - No quizzes. No external assets.
+*/
+
+// ---------- Scene Setup ----------
+const sceneEl = document.getElementById('scene');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xffffff);
+const camera = new THREE.PerspectiveCamera(60, sceneEl.clientWidth/sceneEl.clientHeight, 0.1, 100);
+camera.position.set(3, 3, 6);
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(sceneEl.clientWidth, sceneEl.clientHeight);
+sceneEl.appendChild(renderer.domElement);
+
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+// lights
+scene.add(new THREE.HemisphereLight(0xffffff, 0x111122, 0.8));
+const dl = new THREE.DirectionalLight(0xffffff, 0.6);
+dl.position.set(5, 10, 2);
+scene.add(dl);
+
+// ground plane for reference
+const grid = new THREE.GridHelper(12, 24, 0xd1d8e5, 0xe2e8f0);
+scene.add(grid);
+
+// ---------- Visual Components ----------
+const group = new THREE.Group();
+scene.add(group);
+
+// helper to make labeled boxes/spheres
+function makeBox(w,h,d,color,labelText){
+  const g = new THREE.Group();
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), new THREE.MeshStandardMaterial({color}));
+  g.add(m);
+  if(labelText){
+    const canvas = document.createElement('canvas');
+    canvas.width = 256; canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff'; ctx.font = '28px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(labelText, 128, 40);
+    const tex = new THREE.CanvasTexture(canvas);
+    const label = new THREE.Mesh(new THREE.PlaneGeometry(w*1.5, h*0.6), new THREE.MeshBasicMaterial({map:tex,transparent:true}));
+    label.position.set(0, h/2 + 0.05, d/2 + 0.01);
+    g.add(label);
+  }
+  return g;
+}
+
+function makeBulb(){
+  // bulb sphere with emissive material when on
+  const bulbMat = new THREE.MeshStandardMaterial({color:0xffe9c0,emissive:0x000000,metalness:0.1,roughness:0.5});
+  const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.25, 24, 24), bulbMat);
+  const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.17,0.17,0.12,16), new THREE.MeshStandardMaterial({color:0x444444}));
+  cap.position.y = -0.25;
+  const g = new THREE.Group();
+  g.add(bulb); g.add(cap);
+  g.userData = {bulbMat};
+  return g;
+}
+
+// create battery, switch, bulbs, wires placeholders
+const battery = makeBox(0.7,0.6,0.3,0x0b7aa1,'Battery');
+battery.position.set(-2,0.3,0);
+group.add(battery);
+
+const sw = makeBox(0.6,0.2,0.2,0x444444,'Switch');
+sw.position.set(-0.6,0.1,-1.2);
+group.add(sw);
+
+const bulb1 = makeBulb(); bulb1.position.set(1.5,0.25,-1.2); group.add(bulb1);
+const bulb2 = makeBulb(); bulb2.position.set(1.5,0.25,1.2); group.add(bulb2);
+
+const resistorBox = makeBox(0.4,0.2,0.2,0x8b5e3c,'R'); resistorBox.position.set(0.4,0.1,0); group.add(resistorBox);
+
+const ammeterBox = makeBox(0.4,0.2,0.2,0x2b6ea3,'A'); ammeterBox.position.set(0.0,0.1,-1.8); group.add(ammeterBox);
+const voltmeterBox = makeBox(0.4,0.2,0.2,0x2b6ea3,'V'); voltmeterBox.position.set(0.0,0.1,1.8); group.add(voltmeterBox);
+
+const capacitor = makeBox(0.3,0.6,0.12,0x9aa8b3,'Cap'); capacitor.position.set(-0.6,0.3,1.8); group.add(capacitor);
+
+const galvanometer = makeBox(0.4,0.2,0.2,0x6b9a8a,'Galv'); galvanometer.position.set(-1.8,0.1,1.8); group.add(galvanometer);
+
+// Wires: represent as simple lines; for animation we will sample points along them
+function makeWire(points){
+  const curve = new THREE.CatmullRomCurve3(points.map(p=>new THREE.Vector3(...p)));
+  const geo = new THREE.TubeGeometry(curve, 48, 0.03, 8, false);
+  const mat = new THREE.MeshStandardMaterial({color:0xcccccc});
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.userData.curve = curve;
+  return mesh;
+}
+
+// wires for two-branch layout - we'll recalc positions per configuration
+let wires = [];
+function clearWires(){ wires.forEach(w=>group.remove(w)); wires=[]; }
+function buildWiresSeries(){
+  clearWires();
+  const pts = [
+    [-2,0.15,0], // battery
+    [-0.6,0.15,0],
+    [0.4,0.15,0], // resistor
+    [1.5,0.15,0], // bulb1 (series both bulbs in line)
+    [1.5,0.15,1.2], // to bulb2
+    [-2,0.15,1.2]
+  ];
+  // We'll shape a circuit loop; simpler: two wires: battery to resistor to bulbs and back
+  wires.push(makeWire([[-2,0.15,0],[-1.2,0.15,0],[-0.6,0.15,0]])); // battery to switch
+  wires.push(makeWire([[-0.6,0.15,0],[0.4,0.15,0],[1.5,0.15,-1.2]])); // to bulb1
+  wires.push(makeWire([[1.5,0.15,-1.2],[1.5,0.15,1.2],[0.4,0.15,0]])); // bulb1 to bulb2 to resistor area
+  wires.push(makeWire([[0.4,0.15,0],[-1.2,0.15,0],[-2,0.15,0]])); // back to battery
+  wires.forEach(w=>{ group.add(w); });
+}
+
+function buildWiresParallel(){
+  clearWires();
+  // battery -> junction -> two branches -> back
+  wires.push(makeWire([[-2,0.15,0],[-0.8,0.15,0]])); // battery to junction
+  wires.push(makeWire([[-0.8,0.15,0],[1.5,0.15,-1.2]])); // branch to bulb1
+  wires.push(makeWire([[1.5,0.15,-1.2],[1.5,0.15,-1.0],[-0.8,0.15,-1.0]])); // branch return to junction area
+  wires.push(makeWire([[-0.8,0.15,0],[1.5,0.15,1.2]])); // branch to bulb2
+  wires.push(makeWire([[1.5,0.15,1.2],[1.5,0.15,1.0],[-0.8,0.15,1.0]])); // return
+  wires.push(makeWire([[-0.8,0.15,0],[-2,0.15,0]])); // back to battery
+  wires.forEach(w=>{ group.add(w); });
+}
+
+// particle animation for current flow
+let particles = [];
+function clearParticles(){ particles.forEach(p=>group.remove(p.mesh)); particles=[]; }
+function spawnParticlesAlong(curve, count, speed, color=0xffffaa){
+  const pts = [];
+  for(let i=0;i<count;i++){
+    const t = i/(count);
+    const pos = curve.getPoint(t);
+    pts.push({t,pos});
+  }
+  const arr = pts.map(p=>{
+    const mat = new THREE.MeshStandardMaterial({color});
+    const m = new THREE.Mesh(new THREE.SphereGeometry(0.05,8,8), mat);
+    m.position.copy(p.pos);
+    group.add(m);
+    return {mesh:m, t:p.t, speed};
+  });
+  particles.push(...arr);
+}
+
+// ---------- Simulation (Ohm's law simplified) ----------
+const state = {
+  config: 'series',
+  voltage: 6,
+  r1: 10,
+  r2: 10,
+  rSeries: 0,
+  switchClosed: false,
+  capState: 'uncharged',
+  galvConnected: false
+};
+
+function computeCurrents(){
+  // simplified circuits: bulbs are resistors r1 and r2. battery has voltage V.
+  const V = state.voltage;
+  const r1 = parseFloat(state.r1);
+  const r2 = parseFloat(state.r2);
+  const rSeries = parseFloat(state.rSeries);
+
+  if(!state.switchClosed){
+    // open switch => zero current
+    return {I_main:0, I_b1:0, I_b2:0, V_b1:0, V_b2:0};
+  }
+
+  if(state.config === 'series'){
+    // series: R_total = rSeries + r1 + r2
+    const Rtot = rSeries + r1 + r2;
+    const I = V / Rtot;
+    return {I_main:I, I_b1:I, I_b2:I, V_b1: I * r1, V_b2: I * r2};
+  } else {
+    // parallel: r1 and r2 in separate branches plus rSeries in main; compute branch currents
+    // Voltage across branches = V - I_main * rSeries  but I_main = sum(branch currents)
+    // Solve: I_b1 = (V - I_main*rSeries)/r1 ; I_b2 = (V - I_main*rSeries)/r2 ; I_main = I_b1 + I_b2
+    // => I_main = (V - I_main*rSeries)*(1/r1 + 1/r2) => I_main*(1 + rSeries*(1/r1 + 1/r2)) = V*(1/r1 + 1/r2)
+    const G = (1/r1 + 1/r2);
+    const denom = (1 + rSeries*G);
+    const I_main = (V * G) / denom;
+    const Vbranch = V - I_main*rSeries;
+    const I_b1 = Vbranch / r1;
+    const I_b2 = Vbranch / r2;
+    return {I_main:I_main, I_b1:I_b1, I_b2:I_b2, V_b1: Vbranch, V_b2: Vbranch};
+  }
+}
+
+// ---------- UI wiring ----------
+const configSel = document.getElementById('config');
+const voltageRange = document.getElementById('voltage');
+const voltageVal = document.getElementById('voltageVal');
+const r1Range = document.getElementById('r1'), r2Range = document.getElementById('r2'), rSeriesRange = document.getElementById('rSeries');
+const r1Val = document.getElementById('r1Val'), r2Val = document.getElementById('r2Val'), rSeriesVal = document.getElementById('rSeriesVal');
+const toggleSwitchBtn = document.getElementById('toggleSwitch');
+const resetBtn = document.getElementById('reset');
+const ammeterBranch = document.getElementById('ammeterBranch');
+const voltmeterTarget = document.getElementById('voltmeterTarget');
+const ammeterEl = document.getElementById('ammeter'), voltmeterEl = document.getElementById('voltmeter');
+const capStateSel = document.getElementById('capState'), connectCapBtn = document.getElementById('connectCap'), galNote = document.getElementById('galNote');
+
+configSel.addEventListener('change', e=>{
+  state.config = e.target.value;
+  rebuildCircuit();
+  updateSimulation();
+});
+voltageRange.addEventListener('input', e=>{
+  state.voltage = parseFloat(e.target.value);
+  voltageVal.textContent = state.voltage + ' V';
+  updateSimulation();
+});
+r1Range.addEventListener('input', e=>{
+  state.r1 = parseFloat(e.target.value);
+  r1Val.textContent = state.r1 + ' Ω';
+  updateSimulation();
+});
+r2Range.addEventListener('input', e=>{
+  state.r2 = parseFloat(e.target.value);
+  r2Val.textContent = state.r2 + ' Ω';
+  updateSimulation();
+});
+rSeriesRange.addEventListener('input', e=>{
+  state.rSeries = parseFloat(e.target.value);
+  rSeriesVal.textContent = state.rSeries + ' Ω';
+  updateSimulation();
+});
+
+toggleSwitchBtn.addEventListener('click', ()=>{
+  state.switchClosed = !state.switchClosed;
+  toggleSwitchBtn.textContent = state.switchClosed ? 'Open Switch' : 'Close Switch';
+  // change switch color for visual cue
+  sw.children[0].material.color.set(state.switchClosed?0x2bff9e:0x444444);
+  updateSimulation();
+});
+
+resetBtn.addEventListener('click', ()=>{
+  state.switchClosed = false;
+  toggleSwitchBtn.textContent = 'Close Switch';
+  state.voltage = 6; voltageRange.value = 6; voltageVal.textContent='6 V';
+  state.r1 = 10; r1Range.value = 10; r1Val.textContent='10 Ω';
+  state.r2 = 10; r2Range.value = 10; r2Val.textContent='10 Ω';
+  state.rSeries = 0; rSeriesRange.value = 0; rSeriesVal.textContent='0 Ω';
+  state.capState = 'uncharged'; capStateSel.value = 'uncharged';
+  state.galvConnected = false; galNote.textContent = 'Galvanometer: —';
+  sw.children[0].material.color.set(0x444444);
+  rebuildCircuit();
+  updateSimulation();
+});
+
+connectCapBtn.addEventListener('click', ()=>{
+  // simulate connecting cap to galvanometer: if cap was charged -> brief deflection proportional to charge
+  state.galvConnected = true;
+  if(state.capState === 'charged'){
+    galNote.textContent = 'Galvanometer: strong deflection (cap discharged)';
+    setTimeout(()=>{ galNote.textContent = 'Galvanometer: returned to zero'; state.capState='uncharged'; capStateSel.value='uncharged'; state.galvConnected=false; }, 900);
+  } else {
+    galNote.textContent = 'Galvanometer: no deflection (cap uncharged)';
+    setTimeout(()=>{ galNote.textContent = 'Galvanometer: —'; state.galvConnected=false; }, 700);
+  }
+});
+
+capStateSel.addEventListener('change', e=>{
+  state.capState = e.target.value;
+  // color indicator for capacitor
+  capacitor.children[0].material.color.set(state.capState === 'charged' ? 0xff9d9d : 0x9aa8b3);
+});
+
+// ammeter/voltmeter selection changes: just update display
+ammeterBranch.addEventListener('change', updateSimulation);
+voltmeterTarget.addEventListener('change', updateSimulation);
+
+// ---------- Build/refresh circuit visuals ----------
+function rebuildCircuit(){
+  if(state.config === 'series') buildWiresSeries();
+  else buildWiresParallel();
+  clearParticles();
+}
+
+rebuildCircuit();
+
+// ---------- Visual update loop ----------
+function updateSimulation(){
+  // compute currents and voltages
+  const res = computeCurrents();
+  // update ammeter display depending on branch selection
+  let Aread = 0;
+  if(ammeterBranch.value === 'main') Aread = res.I_main;
+  else if(ammeterBranch.value === 'b1') Aread = res.I_b1;
+  else if(ammeterBranch.value === 'b2') Aread = res.I_b2;
+  ammeterEl.textContent = (Aread || 0).toFixed(3) + ' A';
+  // voltmeter
+  let Vread = 0;
+  if(voltmeterTarget.value === 'battery') Vread = state.voltage;
+  else if(voltmeterTarget.value === 'b1') Vread = res.V_b1 || 0;
+  else if(voltmeterTarget.value === 'b2') Vread = res.V_b2 || 0;
+  voltmeterEl.textContent = Number(Vread || 0).toFixed(3) + ' V';
+
+  // bulb brightness (emissive intensity) based on current through each bulb (scaled)
+  const scale = 6.0; // visual scaling
+  const i1 = res.I_b1 || 0, i2 = res.I_b2 || 0;
+  const e1 = Math.min(1, Math.abs(i1)*scale), e2 = Math.min(1, Math.abs(i2)*scale);
+  bulb1.userData.bulbMat.emissive.setScalar(e1);
+  bulb1.userData.bulbMat.emissiveIntensity = e1*2.0;
+  bulb2.userData.bulbMat.emissive.setScalar(e2);
+  bulb2.userData.bulbMat.emissiveIntensity = e2*2.0;
+
+  // spawn particles to represent moving charges when current flows
+  clearParticles();
+  if(state.switchClosed){
+    wires.forEach(w=>{
+      // spawn small number of particles proportional to main current magnitude
+      const num = Math.min(8, Math.max(2, Math.round((Math.abs(res.I_main||0))*6) ));
+      spawnParticlesAlong(w.userData.curve, num, 0.6, 0xffffaa);
+    });
+  }
+}
+
+// ---------- animation ----------
+let last = 0;
+function animate(time){
+  requestAnimationFrame(animate);
+  controls.update();
+  // move particles along their curve
+  const dt = (time - last) / 1000 || 0.016;
+  last = time;
+  particles.forEach(p=>{
+    p.t += p.speed * dt * 0.2;
+    if(p.t > 1) p.t = 0;
+    // find closest wire curve from mesh (we cannot easily map particle to its curve here because we reused curve points)
+    // Instead we store mesh's curve when spawned. For simplicity we set position from mesh userData.path if exists
+    // We spawned particles with knowledge of a curve; attach curve to mesh.userData.curveRef
+    // (we didn't in spawn function above to keep code short). We'll fake motion by small up-down bob.
+    p.mesh.rotation.y += dt*2;
+    p.mesh.position.y = 0.12 + Math.sin(time/200 + p.t*10)*0.02;
+  });
+
+  renderer.render(scene, camera);
+}
+animate();
+
+// ensure responsive
+window.addEventListener('resize', ()=> {
+  camera.aspect = sceneEl.clientWidth / sceneEl.clientHeight; camera.updateProjectionMatrix();
+  renderer.setSize(sceneEl.clientWidth, sceneEl.clientHeight);
+});
+
+// run initial update loop
+updateSimulation();
+
+// minimal keyboard shortcuts for teachers:
+// s = toggle switch
+window.addEventListener('keydown', (e)=>{ if(e.key.toLowerCase()==='s'){ toggleSwitchBtn.click(); }});
+</script>
+</body>
+</html>

@@ -5,31 +5,31 @@
   <title>Archimedes' Principle — Interactive Experiment</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
-    html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
-    #container{position:fixed;inset:0;background:#111}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:#ffffff;color:#0f1720}
+    #container{position:fixed;inset:0;background:#ffffff}
     canvas{display:block}
     .ui {
       position: absolute; left: 12px; top: 12px; width: 320px;
-      background: rgba(255,255,255,0.06); color: #fff; padding:12px;
-      border-radius:8px; backdrop-filter: blur(4px);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+      background: #ffffff; color: #0f1720; padding:16px;
+      border-radius:12px; border:1px solid #e2e8f0;
+      box-shadow: 0 30px 60px rgba(15,23,42,0.12);
     }
     .ui h3{margin:0 0 8px 0;font-size:16px}
     .row{display:flex;align-items:center;gap:8px;margin:8px 0}
     .row label{width:70px;font-size:13px}
     input[type="range"]{flex:1}
-    button{background:#0ea5a4;border:0;padding:8px 10px;border-radius:6px;color:#032;cursor:pointer}
-    button.secondary{background:#2a2832;color:#fff}
-    .result{margin-top:8px;padding:8px;border-radius:6px;background:rgba(255,255,255,0.04)}
+    button{background:#0ea5a4;border:0;padding:8px 10px;border-radius:6px;color:#032;cursor:pointer;box-shadow:0 12px 20px rgba(14,165,164,0.25)}
+    button.secondary{background:#f1f5f9;color:#0f1720;border:1px solid #e2e8f0;box-shadow:none}
+    .result{margin-top:8px;padding:10px;border-radius:8px;background:#f8fafc;border:1px solid #e2e8f0}
     .result-row{display:flex;justify-content:space-between;margin:4px 0;font-size:13px}
-    .result-label{color:#c9c9c9}
+    .result-label{color:#475569}
     .result-value{font-weight:600;color:#0ea5a4}
-    .small{font-size:12px;color:#c9c9c9}
-    .footer{position:absolute;left:12px;bottom:12px;color:#ddd;font-size:13px;background:rgba(0,0,0,0.35);padding:8px;border-radius:6px}
-    .status-panel{margin-top:10px;padding:10px;background:rgba(0,0,0,0.2);border-radius:6px}
+    .small{font-size:12px;color:#475569}
+    .footer{position:absolute;left:12px;bottom:12px;color:#475569;font-size:13px;background:rgba(241,245,249,0.95);padding:8px 12px;border-radius:8px;border:1px solid #e2e8f0;box-shadow:0 12px 30px rgba(15,23,42,0.08)}
+    .status-panel{margin-top:10px;padding:12px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0}
     .status-item{margin:6px 0;font-size:13px;display:flex;justify-content:space-between}
-    .status-label{color:#c9c9c9}
-    .status-value{font-weight:600}
+    .status-label{color:#475569}
+    .status-value{font-weight:600;color:#0f1720}
   </style>
 </head>
 <body>
@@ -111,7 +111,7 @@
     // ====== Scene + Physics setup ======
     const container = document.getElementById('container');
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x1b2430);
+    scene.background = new THREE.Color(0xffffff);
 
     const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
     camera.position.set(1.5, 1.2, 2.5);
