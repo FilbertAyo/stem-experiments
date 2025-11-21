@@ -1,141 +1,105 @@
 <!DOCTYPE html>
-<html class="no-js" lang="">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <title>STEM LAB || Experiment</title>
-    <meta name="description" content="" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>STEM LAB || Experiments</title>
     <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.svg"/>
-    
-    <link rel="stylesheet" href="assets/css/bootstrap-5.0.0-beta2.min.css" />
-    <link rel="stylesheet" href="assets/css/LineIcons.2.0.css" />
-    <link rel="stylesheet" href="assets/css/tiny-slider.css" />
-    <link rel="stylesheet" href="assets/css/animate.css" />
-    <link rel="stylesheet" href="assets/css/main.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
-      /* Make the service cards the same height and width for consistency */
-      .service-section .row > [class^="col-"] {
-        display: flex;
+      body {
+        background-color: #f8f9fa;
+        padding: 40px 0;
       }
-      .single-service {
+      .experiment-card {
+        background: white;
+        border-radius: 12px;
+        padding: 30px 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 1px solid #e9ecef;
+        height: 100%;
         display: flex;
         flex-direction: column;
-        justify-content: stretch;
-        align-items: stretch;
-        height: 100%;
-        min-height: 220px;
-        box-sizing: border-box;
-        width: 100%; /* Ensures each card uses the full width of its column */
-      }
-      .single-service .icon {
-        margin-bottom: 24px;
-      }
-      .single-service .content {
-        flex: 1 1 auto;
-        display: flex;
         align-items: center;
         justify-content: center;
-        flex-direction: column;
+        text-decoration: none;
+        color: inherit;
       }
-      /* Fix: Ensure all col-*-* have equal width in .row and no flex-shrink */
-      .service-section .row > [class^="col-"] {
-        flex: 1 1 0;
-        min-width: 0;
-        max-width: 100%;
+      .experiment-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border-color: #06b6d4;
+        color: inherit;
+        text-decoration: none;
       }
-      @media (min-width: 1200px) {
-        /* Ensures 4 columns are exactly 25% on xl screens for equal width */
-        .service-section .row > .col-xl-3 {
-          flex: 0 0 25%;
-          max-width: 25%;
-        }
+      .experiment-card .icon {
+        font-size: 48px;
+        color: #06b6d4;
+        margin-bottom: 20px;
+      }
+      .experiment-card h5 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #212529;
+      }
+      .page-title {
+        margin-bottom: 50px;
+      }
+      .page-title h5 {
+        font-size: 32px;
+        font-weight: 700;
+        color: #212529;
       }
     </style>
   </head>
   <body>
-    <div class="preloader">
-      <div class="loader">
-        <div class="spinner">
-          <div class="spinner-container">
-            <div class="spinner-rotator">
-              <div class="spinner-left">
-                <div class="spinner-circle"></div>
-              </div>
-              <div class="spinner-right">
-                <div class="spinner-circle"></div>
-              </div>
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-12 text-center page-title">
+          <h5>Experiments</h5>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-lg-3 col-md-6">
+          <a href="experiments/physics/interactive-cube/index.html" target="_blank" class="experiment-card">
+            <div class="icon">
+              <i class="bi bi-box"></i>
             </div>
-          </div>
+            <h5>Interactive Cube</h5>
+          </a>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+          <a href="experiments/physics/archimedes/index.html" target="_blank" class="experiment-card">
+            <div class="icon">
+              <i class="bi bi-droplet"></i>
+            </div>
+            <h5>Archimedes' Principle</h5>
+          </a>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+          <a href="experiments/physics/static-electricity/index.html" target="_blank" class="experiment-card">
+            <div class="icon">
+              <i class="bi bi-lightning-charge"></i>
+            </div>
+            <h5>Static Electricity</h5>
+          </a>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+          <a href="experiments/physics/magnetism/index.html" target="_blank" class="experiment-card">
+            <div class="icon">
+              <i class="bi bi-magnet"></i>
+            </div>
+            <h5>Magnetism</h5>
+          </a>
         </div>
       </div>
     </div>
-		
-    <section id="service" class="service-section img-bg pt-100 pb-100">
-      <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-xxl-5 col-xl-6 col-lg-7 col-md-10">
-            <div class="section-title text-center mb-50">
-              <h1>Experments</h1>
-            </div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col-xl-3 col-md-6 d-flex">
-            <a class="single-service" href="experiments/physics/interactive-cube/index.html" target="_blank" rel="noopener">
-              <div class="icon color-2">
-                <i class="lni lni-layers"></i>
-              </div>
-              <div class="content">
-                <h3>Interactive Cube</h3>
-              </div>
-            </a>
-          </div>
-          <div class="col-xl-3 col-md-6 d-flex">
-            <a class="single-service" href="experiments/physics/archimedes/index.html" target="_blank" rel="noopener">
-              <div class="icon color-2">
-                <i class="lni lni-code-alt"></i>
-              </div>
-              <div class="content">
-                <h3>Archimedes' Principle</h3>
-              </div>
-            </a>
-          </div>
-          <div class="col-xl-3 col-md-6 d-flex">
-            <a class="single-service" href="experiments/physics/static-electricity/index.html" target="_blank" rel="noopener">
-              <div class="icon color-2">
-                <i class="lni lni-bolt"></i>
-              </div>
-              <div class="content">
-                <h3>Static Electricity</h3>
-              </div>
-            </a>
-          </div>
-          <div class="col-xl-3 col-md-6 d-flex">
-            <a class="single-service" href="experiments/physics/magnetism/index.html" target="_blank" rel="noopener">
-              <div class="icon color-2">
-                <i class="lni lni-magnet"></i>
-              </div>
-              <div class="content">
-                <h3>Magnetism</h3>
-              </div>
-            </a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <a href="#" class="scroll-top btn-hover">
-      <i class="lni lni-chevron-up"></i>
-    </a>
-
-    <!-- ========================= JS here ========================= -->
-    <script src="assets/js/bootstrap-5.0.0-beta2.min.js"></script>
-    <script src="assets/js/count-up.min.js"></script>
-    <script src="assets/js/tiny-slider.js"></script>
-    <script src="assets/js/wow.min.js"></script>
-    <script src="assets/js/polifill.js"></script>
-    <script src="assets/js/main.js"></script>
   </body>
 </html>
