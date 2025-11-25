@@ -1,62 +1,21 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Static Electricity — Interactive Experiment</title>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<style>
-  :root{
-    --bg:#ffffff;
-    --card:#f8fafc;
-    --accent:#06b6d4;
-    --muted:#475569;
-    --pos:#dc2626;
-    --neg:#2563eb;
-    --border:#e2e8f0;
-    --surface:#f1f5f9;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;color:#0f1720;background:var(--bg)}
-  header{padding:18px 20px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;align-items:center;gap:16px}
-  header h1{font-size:18px;margin:0}
-  main{display:flex;gap:16px;padding:16px}
-  .left{width:420px;background:var(--card);padding:14px;border-radius:12px;border:1px solid var(--border);box-shadow:0 20px 60px rgba(15,23,42,0.08)}
-  .canvas{flex:1;background:#fff;padding:14px;border-radius:12px;border:1px solid var(--border);min-height:520px;position:relative;box-shadow:0 20px 60px rgba(15,23,42,0.08)}
-  .row{display:flex;gap:8px;align-items:center;margin:8px 0}
-  label{width:120px;color:var(--muted);font-size:14px}
-  select,input[type=range]{flex:1;padding:6px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:#0f1720}
-  button{padding:8px 10px;border-radius:6px;border:0;cursor:pointer;background:var(--accent);color:#012;font-weight:600;box-shadow:0 8px 18px rgba(6,182,212,0.25)}
-  button.secondary{background:var(--surface);color:#0f1720;border:1px solid var(--border);box-shadow:none}
-  .material-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-  .mat{padding:8px 10px;border-radius:8px;background:rgba(255,255,255,0.02);cursor:pointer;border:1px solid rgba(255,255,255,0.03)}
-  .mat.selected{outline:2px solid rgba(6,182,212,0.18);box-shadow:0 8px 20px rgba(6,182,212,0.06)}
-  .info{margin-top:10px;padding:12px;border-radius:10px;background:var(--surface);border:1px solid var(--border)}
-  .big{font-size:16px;font-weight:700}
-  .meter{display:flex;gap:8px;align-items:center}
-  .ball{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700}
-  .ball.positive{background:linear-gradient(135deg, rgba(220,38,38,0.08), rgba(220,38,38,0.02));border:2px solid rgba(220,38,38,0.25);color:var(--pos)}
-  .ball.negative{background:linear-gradient(135deg, rgba(37,99,235,0.08), rgba(37,99,235,0.02));border:2px solid rgba(37,99,235,0.25);color:var(--neg)}
-  .ball.neutral{background:var(--surface);color:var(--muted);border:2px solid var(--border)}
-  #sceneArea{position:relative;height:420px;border-radius:12px;background:linear-gradient(180deg,#f8fafc 0%, #e2e8f0 100%);overflow:hidden;border:1px solid var(--border)}
-  .objectVis{position:absolute;left:50%;transform:translateX(-50%);top:50px;display:flex;gap:24px;align-items:end;pointer-events:auto}
-  .objCard{width:120px;height:120px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;border:1px solid var(--border);color:#0f1720;font-size:14px;box-shadow:0 10px 30px rgba(15,23,42,0.08)}
-  .chargeLabel{font-weight:700;font-size:13px;color:#0f1720}
-  .distanceControl{position:absolute;right:12px;top:12px;background:rgba(255,255,255,0.9);padding:8px;border-radius:8px;border:1px solid var(--border);color:#0f1720}
-  .arrow{position:absolute;left:50%;top:180px;width:300px;height:12px;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;pointer-events:none}
-  .arrow span{font-weight:700;background:rgba(255,255,255,0.9);padding:6px 10px;border-radius:6px;color:#0f1720;border:1px solid var(--border);box-shadow:0 10px 30px rgba(15,23,42,0.08)}
-  .footerNote{margin-top:12px;color:var(--muted);font-size:13px}
-  pre{background:rgba(255,255,255,0.02);padding:8px;border-radius:6px;overflow:auto}
-</style>
+    <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<header>
-  <h1>Static Electricity — Interactive Classroom Experiment</h1>
-  <div style="margin-left:auto;color:var(--muted)">Place in <code>/public/vr-experiments/static-electricity/</code></div>
-</header>
+    <div id="container">
+      <div id="scene"></div>
+    </div>
 
-<main>
-  <div class="left">
-    <div class="row"><label>Select object A</label>
+    <div class="ui" id="controls">
+      <h3>Static Electricity — Interactive Experiment</h3>
+
+      <div class="row">
+        <label>Object A</label>
       <select id="objA">
         <option value="plastic_pen">Plastic pen</option>
         <option value="ebonite">Ebonite rod</option>
@@ -68,7 +27,8 @@
       </select>
     </div>
 
-    <div class="row"><label>Select object B</label>
+      <div class="row">
+        <label>Object B</label>
       <select id="objB">
         <option value="fur">Fur</option>
         <option value="silk">Silk</option>
@@ -81,272 +41,65 @@
     </div>
 
     <div class="row">
-      <label>Action</label>
-      <div style="display:flex;gap:8px">
+        <label>Distance</label>
+        <input id="distRange" type="range" min="0.2" max="3.0" step="0.1" value="1.6" />
+        <div id="distVal" class="small">1.6m</div>
+      </div>
+
+      <div class="button-group">
         <button id="rubBtn">Rub A with B</button>
         <button id="reverseRub" class="secondary">Rub B with A</button>
         <button id="resetBtn" class="secondary">Reset</button>
+    </div>
+
+      <div class="status" id="status">
+        <div>Object A: <span id="descA">Plastic pen</span></div>
+        <div>Object B: <span id="descB">Fur</span></div>
+        <div style="margin-top: 6px">Last action: <span id="lastAction">—</span></div>
+    </div>
+
+      <div class="charge-display">
+        <div style="flex: 1">
+          <div class="small">Charge A</div>
+          <div id="chargeA" style="font-weight: 700; margin-top: 4px">0 µC</div>
+        </div>
+        <div class="charge-ball neutral" id="visA">0</div>
+      </div>
+
+      <div class="charge-display">
+        <div style="flex: 1">
+          <div class="small">Charge B</div>
+          <div id="chargeB" style="font-weight: 700; margin-top: 4px">0 µC</div>
+        </div>
+        <div class="charge-ball neutral" id="visB">0</div>
+      </div>
+
+      <div class="info">
+        <strong>Triboelectric Series</strong>
+        <div class="small">Materials in this simulation (positive → negative):</div>
+        <pre>Glass → Silk → Fur → Perspex → Plastic pen → Ebonite → Polythene</pre>
+        <div class="small" style="margin-top: 6px">
+          Different materials gain or lose electrons when rubbed. The ranking determines which object becomes positive and which becomes negative.
+        </div>
+      </div>
+
+      <div class="small" style="margin-top: 8px">
+        Use the "Rub" action to show charge transfer. Observe how charged objects attract or repel based on Coulomb's law.
       </div>
     </div>
 
-    <div class="info">
-      <div class="big">Triboelectric clue</div>
-      <div class="footerNote">Different materials tend to gain or lose electrons when rubbed. This model uses a simple ranking to determine which object becomes <strong>positive</strong> and which becomes <strong>negative</strong> after rubbing.</div>
-      <div style="margin-top:8px">
-        <strong>Materials in this simulation (positive → negative):</strong>
-        <pre style="margin:6px 0 0 0">Glass  → Silk  → Fur  → Perspex → Plastic pen → Ebonite → Polythene</pre>
-      </div>
-    </div>
-
-    <div class="footerNote">
-      Teacher notes: Use the "Rub" action to show charge transfer. Ask students to predict the sign before rubbing. Discuss that in real experiments friction, humidity and contact area matter — this is a simplified model to teach the idea of charge movement.
-    </div>
+    <div class="footer">
+      Static Electricity Experiment — Coulomb's Law: F = k × q₁ × q₂ / d²
   </div>
 
-  <div class="canvas">
-    <div id="sceneArea">
-      <div style="position:absolute;left:12px;top:12px;color:var(--muted)">Drag the sliders or use buttons to bring objects close.</div>
-
-      <div class="objectVis" id="objectVis">
-        <div class="objCard" id="cardA" style="cursor:grab">
-          <div id="labelA" style="font-size:16px;font-weight:700;margin-bottom:4px">A</div>
-          <div id="chargeA" class="chargeLabel">0 μC</div>
-        </div>
-
-        <div class="objCard" id="cardB" style="cursor:grab">
-          <div id="labelB" style="font-size:16px;font-weight:700;margin-bottom:4px">B</div>
-          <div id="chargeB" class="chargeLabel">0 μC</div>
-        </div>
-      </div>
-
-      <div class="arrow" id="arrowArea" style="display:none">
-        <svg width="100%" height="40">
-          <defs>
-            <marker id="arr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
-              <path d="M0,0 L10,3.5 L0,7 z" fill="#fff"/>
-            </marker>
-          </defs>
-          <line id="forceLine" x1="10" y1="20" x2="490" y2="20" stroke="#fff" stroke-width="2" marker-end="url(#arr)" opacity="0.9"/>
-        </svg>
-        <span id="forceLabel" style="position:absolute;top:12px">Force: —</span>
-      </div>
-
-      <div class="distanceControl">
-        <div style="font-size:13px;color:var(--muted);margin-bottom:6px">Distance</div>
-        <input id="distRange" type="range" min="0.2" max="3.0" step="0.1" value="1.6" />
-      </div>
-
-    </div>
-
-    <div style="margin-top:12px;display:flex;gap:12px;align-items:center">
-      <div style="flex:1">
-        <div style="display:flex;gap:12px;align-items:center">
-          <div class="ball neutral" id="visA">A</div>
-          <div style="flex:1">
-            <div style="font-size:13px;color:var(--muted)">Object A</div>
-            <div id="descA" style="font-weight:700">Plastic pen</div>
-          </div>
-        </div>
-      </div>
-
-      <div style="flex:1">
-        <div style="display:flex;gap:12px;align-items:center">
-          <div class="ball neutral" id="visB">B</div>
-          <div style="flex:1">
-            <div style="font-size:13px;color:var(--muted)">Object B</div>
-            <div id="descB" style="font-weight:700">Fur</div>
-          </div>
-        </div>
-      </div>
-
-      <div style="width:200px">
-        <div style="font-size:13px;color:var(--muted)">Last action</div>
-        <div id="lastAction" style="font-weight:700">—</div>
-      </div>
-
-    </div>
-
-  </div>
-</main>
-
-<script>
-// ---------- triboelectric ranking (higher => more positive tendency) ----------
-const materials = {
-  glass: {name:"Glass rod", rank:5},
-  silk: {name:"Silk", rank:4},
-  fur: {name:"Fur", rank:3},
-  perspex: {name:"Perspex comb", rank:2},
-  plastic_pen: {name:"Plastic pen", rank:1},
-  ebonite: {name:"Ebonite rod", rank:-1},
-  polythene: {name:"Polythene rod", rank:-2}
-};
-
-// state
-let state = {
-  A: {key:'plastic_pen', charge:0}, // microcoulombs (arbitrary units)
-  B: {key:'fur', charge:0}
-};
-
-// DOM refs
-const objA = document.getElementById('objA');
-const objB = document.getElementById('objB');
-const rubBtn = document.getElementById('rubBtn');
-const reverseRub = document.getElementById('reverseRub');
-const resetBtn = document.getElementById('resetBtn');
-const distRange = document.getElementById('distRange');
-const chargeA = document.getElementById('chargeA');
-const chargeB = document.getElementById('chargeB');
-const descA = document.getElementById('descA');
-const descB = document.getElementById('descB');
-const visA = document.getElementById('visA');
-const visB = document.getElementById('visB');
-const lastAction = document.getElementById('lastAction');
-const arrowArea = document.getElementById('arrowArea');
-const forceLabel = document.getElementById('forceLabel');
-const forceLine = document.getElementById('forceLine');
-const labelA = document.getElementById('labelA');
-const labelB = document.getElementById('labelB');
-
-// initialize selects
-objA.value = state.A.key;
-objB.value = state.B.key;
-updateUI();
-
-objA.addEventListener('change', ()=> {
-  state.A.key = objA.value;
-  state.A.charge = 0;
-  updateUI();
-});
-objB.addEventListener('change', ()=> {
-  state.B.key = objB.value;
-  state.B.charge = 0;
-  updateUI();
-});
-
-// rub logic: A rubbed with B
-rubBtn.addEventListener('click', ()=> doRub('A','B'));
-reverseRub.addEventListener('click', ()=> doRub('B','A'));
-resetBtn.addEventListener('click', ()=> {
-  state.A.charge = 0;
-  state.B.charge = 0;
-  updateUI();
-  lastAction.textContent = 'Reset';
-  arrowArea.style.display = 'none';
-});
-
-// main rubbing model
-function doRub(primary, secondary){
-  const keyP = state[primary].key;
-  const keyS = state[secondary].key;
-  if(keyP === keyS){
-    lastAction.textContent = 'Same material — no net transfer';
-    return;
-  }
-  const pRank = materials[keyP].rank;
-  const sRank = materials[keyS].rank;
-  // amount ~ absolute difference * random factor (1..2) => arbitrary microcoulombs
-  const diff = pRank - sRank;
-  // If diff > 0 => primary tends to be more positive (lose electrons) when rubbed with secondary
-  const base = Math.abs(diff);
-  const transfer = Math.max(1, Math.round(base * (1 + Math.random()*0.6))); // 1..(base*1.6)
-  // primary loses electrons if diff>0; so becomes positive (charge +), secondary negative (-)
-  if(diff > 0){
-    // primary becomes more positive
-    state[primary].charge += transfer;
-    state[secondary].charge -= transfer;
-    lastAction.textContent = `${materials[keyP].name} lost ≈${transfer} µC to ${materials[keyS].name}`;
-  } else if(diff < 0){
-    // primary becomes more negative (gains electrons)
-    state[primary].charge -= transfer;
-    state[secondary].charge += transfer;
-    lastAction.textContent = `${materials[keyP].name} gained ≈${transfer} µC from ${materials[keyS].name}`;
-  } else {
-    // same rank -> small random exchange
-    const small = Math.round(1 + Math.random()*2);
-    const sign = Math.random() > 0.5 ? 1 : -1;
-    state[primary].charge += sign*small;
-    state[secondary].charge -= sign*small;
-    lastAction.textContent = `Small random charge transfer ≈${small} µC`;
-  }
-  // clamp charges to reasonable range for display
-  state.A.charge = clamp(state.A.charge, -50, 50);
-  state.B.charge = clamp(state.B.charge, -50, 50);
-
-  updateUI();
-  computeForce();
-}
-
-// distance control
-distRange.addEventListener('input', computeForce);
-
-function computeForce(){
-  // simple Coulomb-like: F = k * q1 * q2 / d^2
-  // q values are in arbitrary µC; k set to make numbers readable
-  const q1 = state.A.charge;
-  const q2 = state.B.charge;
-  const d = parseFloat(distRange.value); // meters (arbitrary)
-  if(q1 === 0 && q2 === 0){
-    arrowArea.style.display = 'none';
-    forceLabel.textContent = 'Force: —';
-    return;
-  }
-  const k = 0.08; // arbitrary scaling so values are not tiny
-  const F = k * (q1 * q2) / (d*d); // signed: positive means repulsion if q1*q2 >0
-  const mag = Math.abs(F).toFixed(3);
-  const behavior = (q1*q2) < 0 ? 'Attract' : (q1*q2) > 0 ? 'Repel' : 'Neutral';
-  arrowArea.style.display = 'block';
-  forceLabel.textContent = `Force: ${mag} (units) · ${behavior}`;
-  // position/length of line depends on magnitude
-  const minLen = 30, maxLen = 460;
-  const len = Math.min(maxLen, minLen + Math.abs(F)*120);
-  forceLine.setAttribute('x2', 10 + len);
-  // color line: attract = greenish, repel = reddish
-  if(q1*q2 < 0) forceLine.setAttribute('stroke', '#9ae6b4');
-  else if(q1*q2 > 0) forceLine.setAttribute('stroke', '#ff9d9d');
-  else forceLine.setAttribute('stroke', '#fff');
-}
-
-// UI update
-function updateUI(){
-  // labels
-  descA.textContent = materials[state.A.key].name;
-  descB.textContent = materials[state.B.key].name;
-  chargeA.textContent = formatCharge(state.A.charge);
-  chargeB.textContent = formatCharge(state.B.charge);
-  labelA.textContent = materials[state.A.key].name;
-  labelB.textContent = materials[state.B.key].name;
-
-  // visual balls color
-  setBall(visA, state.A.charge);
-  setBall(visB, state.B.charge);
-}
-
-// helpers
-function setBall(el, q){
-  el.classList.remove('positive','negative','neutral');
-  if(q > 0) el.classList.add('positive');
-  else if(q < 0) el.classList.add('negative');
-  else el.classList.add('neutral');
-  el.textContent = (Math.abs(q) > 0 ? (q>0?'+':'-')+Math.abs(q) : '0');
-}
-
-function formatCharge(q){ return q===0? '0 µC' : (q>0? '+'+q : q) + ' µC'; }
-function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
-
-// utilities
-(function makeDraggable(){
-  // allow dragging the two object cards left-right to simulate bringing them closer (visual only)
-  const vis = document.getElementById('objectVis');
-  // but we will not implement full dragging physics — distance slider drives force calculation
-})();
-
-function init(){
-  updateUI();
-  arrowArea.style.display = 'none';
-  lastAction.textContent = 'No action yet';
-}
-init();
-
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"
+        }
+      }
 </script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
