@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Principle of Moments — Interactive Experiment</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div id="container">
+        <div id="scene"></div>
+    </div>
+
+    <div class="logo">
+        <img src="../../../images/logo-dark.png" alt="STEM Lab">
+    </div>
+
+    <div class="ui" id="controls">
+        <h3>Principle of Moments — Experiment</h3>
+
+        <div class="section-title">Left Side (Anticlockwise)</div>
+        <div class="row">
+            <label>Mass M₁</label>
+            <input id="mass1Range" type="range" min="50" max="500" step="10" value="200" />
+            <div id="mass1Val" class="small">200 g</div>
+        </div>
+        <div class="row">
+            <label>Distance d₁</label>
+            <input id="dist1Range" type="range" min="5" max="45" step="1" value="30" />
+            <div id="dist1Val" class="small">30 cm</div>
+        </div>
+
+        <div class="section-title">Right Side (Clockwise)</div>
+        <div class="row">
+            <label>Mass M₂</label>
+            <input id="mass2Range" type="range" min="50" max="500" step="10" value="300" />
+            <div id="mass2Val" class="small">300 g</div>
+        </div>
+        <div class="row">
+            <label>Distance d₂</label>
+            <input id="dist2Range" type="range" min="5" max="45" step="1" value="20" />
+            <div id="dist2Val" class="small">20 cm</div>
+        </div>
+
+        <div class="button-group">
+            <button id="balanceBtn">Auto Balance</button>
+            <button id="resetBtn" class="secondary">Reset</button>
+        </div>
+        <div class="button-group" style="margin-top: 6px;">
+            <button id="resetViewBtn" class="secondary">Reset View</button>
+        </div>
+
+        <div class="status-panel">
+            <div class="status-item">
+                <span class="status-label">Anticlockwise Moment:</span>
+                <span class="status-value" id="moment1">0.000 N·m</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Clockwise Moment:</span>
+                <span class="status-value" id="moment2">0.000 N·m</span>
+            </div>
+            <div class="status-item difference">
+                <span class="status-label">Difference:</span>
+                <span class="status-value" id="momentDiff">0.000 N·m</span>
+            </div>
+        </div>
+
+        <div class="result">
+            <div class="result-row">
+                <span class="result-label">Balance Status:</span>
+                <span class="result-value" id="balanceStatus">—</span>
+            </div>
+            <div class="small" style="margin-top:6px">
+                Clockwise Moment = Anticlockwise Moment
+            </div>
+        </div>
+
+        <div class="formula-box">
+            <strong>Moment = Force × Distance</strong>
+            <div class="small">M = (mass × g) × distance from pivot</div>
+        </div>
+
+        <div class="small" style="margin-top:8px">
+            Adjust masses and distances on both sides. The beam will tilt based on the net moment. Use "Auto Balance" to find the equilibrium position for d₂.
+        </div>
+    </div>
+
+    <div class="footer">
+        Principle of Moments — For equilibrium: Σ Anticlockwise Moments = Σ Clockwise Moments
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"
+            }
+        }
+    </script>
+    <script type="module" src="script.js"></script>
+</body>
+</html>
+
