@@ -1,17 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-// Material properties
-const MATERIALS = {
-  iron: { name: 'Iron Rod', magnetic: true, color: 0x8b7355 },
-  cobalt: { name: 'Cobalt Plate', magnetic: true, color: 0x2e5090 },
-  nickel: { name: 'Nickel Rod', magnetic: true, color: 0x727472 },
-  steel: { name: 'Steel Rod', magnetic: true, color: 0x71797e },
-  copper: { name: 'Copper Rod', magnetic: false, color: 0xb87333 },
-  wood: { name: 'Piece of Wood', magnetic: false, color: 0x8b4513 },
-  glass: { name: 'Glass Block', magnetic: false, color: 0x87ceeb }
-};
-
 // ---------- Scene Setup ----------
 const container = document.getElementById('container');
 const sceneEl = document.getElementById('scene');
@@ -19,8 +8,20 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xffffff);
 
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.set(4, 3, 5);
+// Default top view position
+camera.position.set(0, 8, 0);
 camera.lookAt(0, 0, 0);
+
+// Store original camera position for reset
+const originalCameraPosition = new THREE.Vector3(0, 8, 0);
+const originalCameraTarget = new THREE.Vector3(0, 0, 0);
+
+// Camera animation state
+let isAnimatingCamera = false;
+let cameraAnimationStart = null;
+let cameraStartPosition = new THREE.Vector3();
+let cameraStartTarget = new THREE.Vector3();
+const cameraAnimationDuration = 1000; // 1 second
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -63,60 +64,89 @@ scene.add(magnetGroup);
 function createBarMagnet() {
   const group = new THREE.Group();
 
-  // North pole (red)
-  const northGeo = new THREE.BoxGeometry(0.3, 0.3, 0.6);
-  const northMat = new THREE.MeshStandardMaterial({ color: 0xdc2626, metalness: 0.3, roughness: 0.4 });
+  // Magnet dimensions
+  const width = 0.4;
+  const height = 0.4;
+  const poleLength = 0.7;
+  const middleLength = 0.2;
+  const totalLength = poleLength * 2 + middleLength;
+
+  // North pole (red) - positioned at positive Z
+  const northGeo = new THREE.BoxGeometry(width, height, poleLength);
+  const northMat = new THREE.MeshStandardMaterial({ 
+    color: 0xdc2626, 
+    metalness: 0.4, 
+    roughness: 0.3 
+  });
   const north = new THREE.Mesh(northGeo, northMat);
-  north.position.z = 0.3;
+  north.position.z = (poleLength + middleLength) / 2;
   north.castShadow = true;
+  north.receiveShadow = true;
   group.add(north);
 
-  // South pole (blue)
-  const southGeo = new THREE.BoxGeometry(0.3, 0.3, 0.6);
-  const southMat = new THREE.MeshStandardMaterial({ color: 0x2563eb, metalness: 0.3, roughness: 0.4 });
+  // South pole (blue) - positioned at negative Z
+  const southGeo = new THREE.BoxGeometry(width, height, poleLength);
+  const southMat = new THREE.MeshStandardMaterial({ 
+    color: 0x2563eb, 
+    metalness: 0.4, 
+    roughness: 0.3 
+  });
   const south = new THREE.Mesh(southGeo, southMat);
-  south.position.z = -0.3;
+  south.position.z = -(poleLength + middleLength) / 2;
   south.castShadow = true;
+  south.receiveShadow = true;
   group.add(south);
 
-  // Middle connector
-  const middleGeo = new THREE.BoxGeometry(0.3, 0.3, 0.2);
-  const middleMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.5, roughness: 0.3 });
+  // Middle connector (dark gray/black)
+  const middleGeo = new THREE.BoxGeometry(width, height, middleLength);
+  const middleMat = new THREE.MeshStandardMaterial({ 
+    color: 0x1e293b, 
+    metalness: 0.6, 
+    roughness: 0.2 
+  });
   const middle = new THREE.Mesh(middleGeo, middleMat);
   middle.castShadow = true;
+  middle.receiveShadow = true;
   group.add(middle);
 
-  // Labels
+  // Create N label (North pole - red end)
   const canvasN = document.createElement('canvas');
-  canvasN.width = 128;
-  canvasN.height = 64;
+  canvasN.width = 256;
+  canvasN.height = 128;
   const ctxN = canvasN.getContext('2d');
   ctxN.fillStyle = '#ffffff';
-  ctxN.font = 'bold 32px sans-serif';
+  ctxN.font = 'bold 72px Arial, sans-serif';
   ctxN.textAlign = 'center';
-  ctxN.fillText('N', 64, 42);
+  ctxN.textBaseline = 'middle';
+  ctxN.fillText('N', 128, 64);
   const texN = new THREE.CanvasTexture(canvasN);
+  texN.needsUpdate = true;
   const labelN = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.2, 0.1),
+    new THREE.PlaneGeometry(0.35, 0.18),
     new THREE.MeshBasicMaterial({ map: texN, transparent: true })
   );
-  labelN.position.set(0, 0.2, 0.6);
+  labelN.position.set(0, height * 0.6, totalLength / 2 + 0.15);
+  labelN.lookAt(0, 10, totalLength / 2 + 0.15); // Face upward
   group.add(labelN);
 
+  // Create S label (South pole - blue end)
   const canvasS = document.createElement('canvas');
-  canvasS.width = 128;
-  canvasS.height = 64;
+  canvasS.width = 256;
+  canvasS.height = 128;
   const ctxS = canvasS.getContext('2d');
   ctxS.fillStyle = '#ffffff';
-  ctxS.font = 'bold 32px sans-serif';
+  ctxS.font = 'bold 72px Arial, sans-serif';
   ctxS.textAlign = 'center';
-  ctxS.fillText('S', 64, 42);
+  ctxS.textBaseline = 'middle';
+  ctxS.fillText('S', 128, 64);
   const texS = new THREE.CanvasTexture(canvasS);
+  texS.needsUpdate = true;
   const labelS = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.2, 0.1),
+    new THREE.PlaneGeometry(0.35, 0.18),
     new THREE.MeshBasicMaterial({ map: texS, transparent: true })
   );
-  labelS.position.set(0, 0.2, -0.6);
+  labelS.position.set(0, height * 0.6, -totalLength / 2 - 0.15);
+  labelS.lookAt(0, 10, -totalLength / 2 - 0.15); // Face upward
   group.add(labelS);
 
   return group;
@@ -125,61 +155,6 @@ function createBarMagnet() {
 const barMagnet = createBarMagnet();
 barMagnet.position.y = 0.15;
 magnetGroup.add(barMagnet);
-
-// ---------- Test Material Object ----------
-let testMaterialObj = null;
-let testMaterialType = null;
-
-function createTestMaterial(materialKey) {
-  const mat = MATERIALS[materialKey];
-  if (!mat) return null;
-
-  const group = new THREE.Group();
-
-  // Create shape based on material type
-  let geo, pos;
-  if (materialKey === 'cobalt') {
-    geo = new THREE.BoxGeometry(0.4, 0.1, 0.4);
-    pos = { x: 1.5, y: 0.05, z: 0 };
-  } else if (materialKey === 'glass') {
-    geo = new THREE.BoxGeometry(0.3, 0.3, 0.3);
-    pos = { x: 1.5, y: 0.15, z: 0 };
-  } else {
-    geo = new THREE.CylinderGeometry(0.08, 0.08, 0.5, 16);
-    pos = { x: 1.5, y: 0.25, z: 0 };
-  }
-
-  const material = new THREE.MeshStandardMaterial({
-    color: mat.color,
-    metalness: mat.magnetic ? 0.5 : 0.1,
-    roughness: 0.6
-  });
-  const mesh = new THREE.Mesh(geo, material);
-  mesh.castShadow = true;
-  group.add(mesh);
-
-  // Label
-  const canvas = document.createElement('canvas');
-  canvas.width = 256;
-  canvas.height = 64;
-  const ctx = canvas.getContext('2d');
-  ctx.fillStyle = '#0f1720';
-  ctx.font = 'bold 24px sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText(mat.name, 128, 40);
-  const tex = new THREE.CanvasTexture(canvas);
-  const label = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.6, 0.15),
-    new THREE.MeshBasicMaterial({ map: tex, transparent: true })
-  );
-  label.position.set(0, 0.4, 0);
-  group.add(label);
-
-  group.position.set(pos.x, pos.y, pos.z);
-  group.userData = { materialKey, magnetic: mat.magnetic };
-
-  return group;
-}
 
 // ---------- Magnetic Field Visualization ----------
 let ironFilings = [];
@@ -197,18 +172,32 @@ function clearFieldVisualization() {
 
 function calculateFieldAt(x, z) {
   const magnetPos = magnetGroup.position;
+  const magnetRot = magnetGroup.rotation.y;
+  
+  // Calculate position relative to magnet
   const dx = x - magnetPos.x;
   const dz = z - magnetPos.z;
+  
+  // Rotate coordinates to account for magnet rotation
+  const cosRot = Math.cos(-magnetRot);
+  const sinRot = Math.sin(-magnetRot);
+  const dxRot = dx * cosRot - dz * sinRot;
+  const dzRot = dx * sinRot + dz * cosRot;
+  
   const dist = Math.sqrt(dx * dx + dz * dz);
   if (dist < 0.1) return { bx: 0, bz: 0, strength: 0 };
 
-  const strength = parseFloat(document.getElementById('magnetStrength').value);
-  const magStrength = strength * 0.5;
+  // Fixed magnet strength
+  const magStrength = 0.5;
 
-  // Simplified dipole field
+  // Simplified dipole field in rotated coordinate system
   const r3 = dist * dist * dist;
-  const bx = ((3 * dx * dz) / r3) * magStrength;
-  const bz = ((2 * dz * dz - dx * dx) / r3) * magStrength;
+  const bxRot = ((3 * dxRot * dzRot) / r3) * magStrength;
+  const bzRot = ((2 * dzRot * dzRot - dxRot * dxRot) / r3) * magStrength;
+  
+  // Rotate field back to world coordinates
+  const bx = bxRot * cosRot - bzRot * sinRot;
+  const bz = bxRot * sinRot + bzRot * cosRot;
 
   return { bx, bz, strength: Math.sqrt(bx * bx + bz * bz) };
 }
@@ -264,16 +253,18 @@ function createCompassNeedle(x, z) {
   return group;
 }
 
-function createFieldLine(startX, startZ, steps = 50) {
+function createFieldLine(startX, startZ, steps = 300) {
   const points = [];
   let x = startX;
   let z = startZ;
-  const stepSize = 0.05;
+  const stepSize = 0.02;
 
   for (let i = 0; i < steps; i++) {
-    points.push(new THREE.Vector3(x, 0.01, z));
+    points.push(new THREE.Vector3(x, 0.02, z));
     const field = calculateFieldAt(x, z);
-    if (field.strength < 0.01) break;
+    
+    // Check if field is too weak
+    if (field.strength < 0.003) break;
 
     const dirX = field.bx / field.strength;
     const dirZ = field.bz / field.strength;
@@ -282,15 +273,52 @@ function createFieldLine(startX, startZ, steps = 50) {
     z += dirZ * stepSize;
 
     // Check bounds
-    if (Math.abs(x) > 3 || Math.abs(z) > 3) break;
+    if (Math.abs(x) > 5 || Math.abs(z) > 5) break;
+    
+    // Stop if we've looped back or reached the opposite pole
+    const magnetPos = magnetGroup.position;
+    const distToMagnet = Math.sqrt((x - magnetPos.x) ** 2 + (z - magnetPos.z) ** 2);
+    if (distToMagnet < 0.2 && i > 20) break; // Reached opposite pole
   }
 
-  if (points.length < 2) return null;
+  if (points.length < 3) return null;
 
+  const group = new THREE.Group();
+  
+  // Create the curved line
   const curve = new THREE.CatmullRomCurve3(points);
-  const geo = new THREE.TubeGeometry(curve, points.length * 2, 0.01, 8, false);
-  const mat = new THREE.MeshBasicMaterial({ color: 0x06b6d4, transparent: true, opacity: 0.6 });
-  return new THREE.Mesh(geo, mat);
+  const segments = Math.max(points.length * 2, 100);
+  const geo = new THREE.TubeGeometry(curve, segments, 0.008, 8, false);
+  const mat = new THREE.MeshBasicMaterial({ 
+    color: 0x000000, // Black lines
+    transparent: false,
+    side: THREE.DoubleSide
+  });
+  const lineMesh = new THREE.Mesh(geo, mat);
+  group.add(lineMesh);
+
+  // Add arrowheads along the line to show direction (from N to S)
+  const arrowSpacing = Math.max(Math.floor(points.length / 12), 3); // About 12 arrows per line
+  for (let i = arrowSpacing; i < points.length - arrowSpacing; i += arrowSpacing) {
+    const point = points[i];
+    const nextPoint = points[Math.min(i + 1, points.length - 1)];
+    
+    // Calculate direction from current point to next
+    const direction = new THREE.Vector3().subVectors(nextPoint, point).normalize();
+    
+    // Create arrow helper pointing in field direction
+    const arrow = new THREE.ArrowHelper(
+      direction,
+      point,
+      0.1, // arrow length
+      0x000000, // Black color
+      0.05, // head length
+      0.04 // head width
+    );
+    group.add(arrow);
+  }
+
+  return group;
 }
 
 function showIronFilings() {
@@ -323,12 +351,45 @@ function showCompassNeedles() {
 
 function showFieldLines() {
   clearFieldVisualization();
-  const numLines = 20;
-  for (let i = 0; i < numLines; i++) {
-    const angle = (i / numLines) * Math.PI * 2;
-    const radius = 0.3;
-    const startX = Math.cos(angle) * radius;
-    const startZ = Math.sin(angle) * radius;
+  const magnetPos = magnetGroup.position;
+  const magnetRot = magnetGroup.rotation.y;
+  
+  // Calculate pole positions accounting for rotation
+  const poleDistance = 0.7; // Distance from center to pole
+  const cosRot = Math.cos(magnetRot);
+  const sinRot = Math.sin(magnetRot);
+  
+  // North pole position (red end - positive Z direction)
+  const northPoleX = magnetPos.x - sinRot * poleDistance;
+  const northPoleZ = magnetPos.z + cosRot * poleDistance;
+  
+  // South pole position (blue end - negative Z direction)
+  const southPoleX = magnetPos.x + sinRot * poleDistance;
+  const southPoleZ = magnetPos.z - cosRot * poleDistance;
+  
+  // Create field lines starting from North pole (higher density near poles)
+  const numLinesFromNorth = 20;
+  for (let i = 0; i < numLinesFromNorth; i++) {
+    const angle = (i / numLinesFromNorth) * Math.PI * 2;
+    // Start from a small circle around the North pole
+    const radius = 0.15 + (i % 3) * 0.05; // Vary radius for density
+    const startX = northPoleX + Math.cos(angle) * radius;
+    const startZ = northPoleZ + Math.sin(angle) * radius;
+
+    const line = createFieldLine(startX, startZ);
+    if (line) {
+      scene.add(line);
+      fieldLines.push(line);
+    }
+  }
+  
+  // Create additional lines from around the magnet for complete coverage
+  const numLinesAround = 16;
+  for (let i = 0; i < numLinesAround; i++) {
+    const angle = (i / numLinesAround) * Math.PI * 2;
+    const radius = 0.4;
+    const startX = magnetPos.x + Math.cos(angle) * radius;
+    const startZ = magnetPos.z + Math.sin(angle) * radius;
 
     const line = createFieldLine(startX, startZ);
     if (line) {
@@ -340,76 +401,26 @@ function showFieldLines() {
 
 function refreshVisualization() {
   const mode = document.getElementById('vizMode').value;
-  if (ironFilings.length > 0 || compassNeedles.length > 0 || fieldLines.length > 0) {
+  if (ironFilings.length > 0 || compassNeedles.length > 0) {
     clearFieldVisualization();
     if (mode === 'ironFilings') showIronFilings();
     else if (mode === 'compass') showCompassNeedles();
-    else if (mode === 'fieldLines') showFieldLines();
   }
 }
 
 // ---------- UI Controls ----------
-document.getElementById('materialSelect').addEventListener('change', () => {
-  if (testMaterialObj) {
-    scene.remove(testMaterialObj);
-    testMaterialObj = null;
-  }
-  testMaterialType = null;
-  document.getElementById('testResult').style.display = 'none';
-});
-
-document.getElementById('testMaterial').addEventListener('click', () => {
-  const materialKey = document.getElementById('materialSelect').value;
-  const mat = MATERIALS[materialKey];
-
-  if (testMaterialObj) {
-    scene.remove(testMaterialObj);
-  }
-
-  testMaterialObj = createTestMaterial(materialKey);
-  scene.add(testMaterialObj);
-
-  // Animate attraction if magnetic
-  if (mat.magnetic) {
-    const startPos = testMaterialObj.position.clone();
-    const magnetPos = magnetGroup.position;
-    const targetPos = new THREE.Vector3(magnetPos.x + 0.8, startPos.y, magnetPos.z);
-
-    let progress = 0;
-    const animate = () => {
-      progress += 0.02;
-      if (progress < 1) {
-        testMaterialObj.position.lerpVectors(startPos, targetPos, progress);
-        requestAnimationFrame(animate);
-      }
-    };
-    animate();
-  }
-
-  // Show result
-  const resultBox = document.getElementById('testResult');
-  const resultValue = document.getElementById('materialType');
-  resultBox.style.display = 'block';
-  resultValue.textContent = mat.magnetic ? 'MAGNETIC' : 'NON-MAGNETIC';
-  resultValue.className = 'result-value ' + (mat.magnetic ? 'magnetic' : 'non-magnetic');
-
-  testMaterialType = materialKey;
-});
-
-document.getElementById('resetTest').addEventListener('click', () => {
-  if (testMaterialObj) {
-    scene.remove(testMaterialObj);
-    testMaterialObj = null;
-  }
-  testMaterialType = null;
-  document.getElementById('testResult').style.display = 'none';
-});
 
 document.getElementById('showField').addEventListener('click', () => {
   const mode = document.getElementById('vizMode').value;
   if (mode === 'ironFilings') showIronFilings();
   else if (mode === 'compass') showCompassNeedles();
-  else if (mode === 'fieldLines') showFieldLines();
+});
+
+// Auto-show compass needles on load (default view)
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    showCompassNeedles();
+  }, 500);
 });
 
 document.getElementById('clearField').addEventListener('click', () => {
@@ -420,11 +431,7 @@ document.getElementById('vizMode').addEventListener('change', () => {
   clearFieldVisualization();
 });
 
-document.getElementById('magnetStrength').addEventListener('input', (e) => {
-  document.getElementById('strengthVal').textContent = parseFloat(e.target.value).toFixed(1) + 'x';
-  refreshVisualization();
-});
-
+// Magnet position controls
 document.getElementById('magnetX').addEventListener('input', (e) => {
   magnetGroup.position.x = parseFloat(e.target.value);
   document.getElementById('magnetXVal').textContent = parseFloat(e.target.value).toFixed(1);
@@ -443,6 +450,17 @@ document.getElementById('magnetRot').addEventListener('input', (e) => {
   refreshVisualization();
 });
 
+// Reset camera view button with smooth transition
+document.getElementById('resetView').addEventListener('click', () => {
+  // Store current camera position and target
+  cameraStartPosition.copy(camera.position);
+  cameraStartTarget.copy(controls.target);
+  
+  // Start animation
+  isAnimatingCamera = true;
+  cameraAnimationStart = Date.now();
+});
+
 // Handle window resize
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
@@ -453,7 +471,37 @@ window.addEventListener('resize', () => {
 // Animation loop
 function animate() {
   requestAnimationFrame(animate);
-  controls.update();
+  
+  // Handle camera animation
+  if (isAnimatingCamera) {
+    const elapsed = Date.now() - cameraAnimationStart;
+    const progress = Math.min(elapsed / cameraAnimationDuration, 1);
+    
+    // Use easing function for smooth transition (ease-in-out)
+    const easeProgress = progress < 0.5
+      ? 2 * progress * progress
+      : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+    
+    // Interpolate camera position
+    camera.position.lerpVectors(cameraStartPosition, originalCameraPosition, easeProgress);
+    
+    // Interpolate camera target
+    controls.target.lerpVectors(cameraStartTarget, originalCameraTarget, easeProgress);
+    
+    // Update controls
+    controls.update();
+    
+    // Stop animation when complete
+    if (progress >= 1) {
+      isAnimatingCamera = false;
+      camera.position.copy(originalCameraPosition);
+      controls.target.copy(originalCameraTarget);
+      controls.update();
+    }
+  } else {
+    controls.update();
+  }
+  
   renderer.render(scene, camera);
 }
 

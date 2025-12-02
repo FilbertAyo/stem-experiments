@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Magnetism — Interactive Experiment</title>
+    <title>Magnetic Field Lines — Interactive Experiment</title>
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -16,56 +16,29 @@
     </div>
 
     <div class="ui" id="controls">
-        <h3>Magnetism — Interactive Experiment</h3>
+        <h3>Magnetic Field Lines</h3>
 
-        <div class="section-title">Material Testing</div>
-        <div class="row">
-            <label>Select Material</label>
-            <select id="materialSelect">
-                <option value="iron">Iron Rod</option>
-                <option value="cobalt">Cobalt Plate</option>
-                <option value="nickel">Nickel Rod</option>
-                <option value="steel">Steel Rod</option>
-                <option value="copper">Copper Rod</option>
-                <option value="wood">Piece of Wood</option>
-                <option value="glass">Glass Block</option>
-            </select>
-        </div>
-
-        <div class="button-group">
-            <button id="testMaterial">Test Material</button>
-            <button id="resetTest" class="secondary">Reset</button>
-        </div>
-
-        <div class="result" id="testResult" style="display:none">
-            <div class="result-row">
-                <span class="result-label">Material Type:</span>
-                <span class="result-value" id="materialType">—</span>
+        <div class="info">
+            <strong>Objective</strong>
+            <div class="small" style="margin-top:6px">
+                Map the magnetic field pattern around a bar magnet using a compass.
             </div>
         </div>
 
-        <div class="section-title">Magnetic Field Visualization</div>
-        <div class="row">
-            <label>Visualization</label>
-            <select id="vizMode">
-                <option value="ironFilings">Iron Filings</option>
-                <option value="compass">Compass Needles</option>
-                <option value="fieldLines">Field Lines</option>
-            </select>
+        <div class="section-title">Procedure</div>
+        <div class="instructions">
+            <div class="instruction-step">1. Place a bar magnet on a flat surface</div>
+            <div class="instruction-step">2. Use a small compass to trace field lines</div>
+            <div class="instruction-step">3. Note the direction from North (N) to South (S) pole</div>
+            <div class="instruction-step">4. Observe the curved lines running from N to S pole</div>
         </div>
 
-        <div class="row">
-            <label>Magnet Strength</label>
-            <input id="magnetStrength" type="range" min="0.5" max="2.0" step="0.1" value="1.0" />
-            <div class="small" id="strengthVal">1.0x</div>
-        </div>
-
+        <div class="section-title">Camera View</div>
         <div class="button-group">
-            <button id="showField">Show Field</button>
-            <button id="clearField" class="secondary">Clear</button>
+            <button id="resetView">Reset to Top View</button>
         </div>
 
-        <div class="section-title">Magnet Controls</div>
+        <div class="section-title">Magnet Position</div>
         <div class="row">
             <label>Position X</label>
             <input id="magnetX" type="range" min="-2" max="2" step="0.1" value="0" />
@@ -82,18 +55,30 @@
             <div class="small" id="magnetRotVal">0°</div>
         </div>
 
-        <div class="info">
-            <strong>Learning Objectives</strong>
+        <div class="section-title">Visualization</div>
+        <div class="row">
+            <label>View Mode</label>
+            <select id="vizMode">
+                <option value="compass">Compass Needles</option>
+                <option value="ironFilings">Iron Filings</option>
+            </select>
+        </div>
+
+        <div class="button-group">
+            <button id="showField">Show Field</button>
+            <button id="clearField" class="secondary">Clear</button>
+        </div>
+
+        <div class="info" style="margin-top: 12px;">
+            <strong>Expected Outcome</strong>
             <div class="small" style="margin-top:6px">
-                • Identify magnetic and non-magnetic materials<br>
-                • Visualize magnetic lines of force<br>
-                • Understand field patterns using iron filings and compass needles
+                The compass needles reveal curved lines running from North to South pole, showing the magnetic field is strongest at the poles.
             </div>
         </div>
     </div>
 
     <div class="footer">
-        Magnetism Experiment — Magnetic field flows from North (N) to South (S) pole
+        Magnetic field flows from North (N) to South (S) pole
     </div>
 
     <script type="importmap">
