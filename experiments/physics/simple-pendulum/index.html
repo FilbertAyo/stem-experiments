@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple Pendulum - Measuring g — Interactive Experiment</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div id="container">
+        <div id="scene"></div>
+    </div>
+
+    <div class="logo">
+        <img src="../../../images/logo-dark.png" alt="STEM Lab">
+    </div>
+
+    <div class="ui" id="controls">
+        <h3>Simple Pendulum — Measuring g</h3>
+
+        <div class="section-title">Pendulum Setup</div>
+        <div class="row">
+            <label>Length L</label>
+            <input id="lengthRange" type="range" min="20" max="100" step="5" value="50" />
+            <div id="lengthVal" class="small">50 cm</div>
+        </div>
+        <div class="row">
+            <label>Initial Angle</label>
+            <input id="angleRange" type="range" min="1" max="10" step="1" value="5" />
+            <div id="angleVal" class="small">5°</div>
+        </div>
+
+        <div class="button-group">
+            <button id="startBtn">Start Oscillation</button>
+            <button id="stopBtn" class="secondary">Stop</button>
+        </div>
+        <div class="button-group" style="margin-top: 6px;">
+            <button id="resetBtn" class="secondary">Reset</button>
+            <button id="resetViewBtn" class="secondary">Reset View</button>
+        </div>
+
+        <div class="section-title">Timing</div>
+        <div class="status-panel">
+            <div class="status-item">
+                <span class="status-label">Oscillations:</span>
+                <span class="status-value" id="oscillations">0</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Time:</span>
+                <span class="status-value" id="time">0.00 s</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Period T:</span>
+                <span class="status-value" id="period">— s</span>
+            </div>
+        </div>
+
+        <div class="button-group" style="margin-top: 8px;">
+            <button id="recordBtn" class="secondary">Record Data</button>
+        </div>
+
+        <div class="section-title">Data Collection</div>
+        <div class="data-table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>L (cm)</th>
+                        <th>T (s)</th>
+                        <th>T² (s²)</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="dataTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="button-group" style="margin-top: 8px;">
+            <button id="clearDataBtn" class="secondary">Clear Data</button>
+        </div>
+
+        <div class="section-title">Graph & Results</div>
+        <div class="graph-container">
+            <canvas id="graphCanvas"></canvas>
+        </div>
+
+        <div class="result" id="resultPanel" style="display: none;">
+            <div class="result-row">
+                <span class="result-label">Slope (T²/L):</span>
+                <span class="result-value" id="slopeValue">—</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">g (m/s²):</span>
+                <span class="result-value" id="gValue">—</span>
+            </div>
+        </div>
+
+        <div class="formula-box">
+            <strong>T = 2π√(L/g)</strong>
+            <div class="small">T² = (4π²/g) × L</div>
+            <div class="small" style="margin-top: 4px;">Slope = 4π²/g, therefore g = 4π²/slope</div>
+        </div>
+
+        <div class="small" style="margin-top:8px">
+            <strong>Procedure:</strong> Set length L, displace by small angle (&lt;10°), start oscillation, time 20 complete oscillations, record data. Repeat for 5 different lengths. Graph T² vs L to find g.
+        </div>
+    </div>
+
+    <div class="footer">
+        Simple Pendulum — For small angles: T = 2π√(L/g)
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"
+            }
+        }
+    </script>
+    <script type="module" src="script.js"></script>
+</body>
+</html>
+

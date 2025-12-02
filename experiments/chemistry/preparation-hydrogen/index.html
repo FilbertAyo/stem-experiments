@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Preparation and Properties of Hydrogen — Interactive Experiment</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div id="container">
+        <div id="scene"></div>
+    </div>
+
+    <div class="logo">
+        <img src="../../../images/logo-dark.png" alt="STEM Lab">
+    </div>
+
+    <div class="ui" id="controls">
+        <h3>Preparation and Properties of Hydrogen</h3>
+
+        <div class="section-title">Step 1: Prepare Hydrogen Gas</div>
+        <div class="row">
+            <button id="addZincBtn" class="action-btn">Add Zinc Granules</button>
+            <span id="zincStatus" class="status-indicator">Not added</span>
+        </div>
+        <div class="row">
+            <button id="addHClBtn" class="action-btn" disabled>Add Dilute HCl</button>
+            <span id="hclStatus" class="status-indicator">Not added</span>
+        </div>
+        <div class="row">
+            <button id="collectGasBtn" class="action-btn" disabled>Collect Hydrogen Gas</button>
+            <span id="gasStatus" class="status-indicator">Not collected</span>
+        </div>
+
+        <div class="section-title">Step 2: Test Hydrogen Gas</div>
+        <div class="row">
+            <button id="popTestBtn" class="action-btn" disabled>Test with Burning Splint</button>
+            <span id="popTestStatus" class="status-indicator">Not tested</span>
+        </div>
+
+        <div class="section-title">Step 3: Hydrogen Reduction</div>
+        <div class="row">
+            <button id="addCuOBtn" class="action-btn">Add Copper Oxide</button>
+            <span id="cuoStatus" class="status-indicator">Not added</span>
+        </div>
+        <div class="row">
+            <button id="heatBtn" class="action-btn" disabled>Heat CuO</button>
+            <span id="heatStatus" class="status-indicator">Not heated</span>
+        </div>
+        <div class="row">
+            <button id="passHydrogenBtn" class="action-btn" disabled>Pass Hydrogen Over CuO</button>
+            <span id="reductionStatus" class="status-indicator">Not reduced</span>
+        </div>
+
+        <div class="section-title">Step 4: Test for Water</div>
+        <div class="row">
+            <button id="waterTestBtn" class="action-btn" disabled>Test with Cobalt Chloride Paper</button>
+            <span id="waterTestStatus" class="status-indicator">Not tested</span>
+        </div>
+
+        <div class="button-group">
+            <button id="resetBtn" class="secondary">Reset Experiment</button>
+        </div>
+
+        <div class="status-panel">
+            <div class="status-item">
+                <span class="status-label">Reaction:</span>
+                <span class="status-value" id="reactionDisplay">Zn + 2HCl → ZnCl₂ + H₂</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Reduction:</span>
+                <span class="status-value" id="reductionDisplay">CuO + H₂ → Cu + H₂O</span>
+            </div>
+        </div>
+
+        <div class="info">
+            <strong>Objective</strong>
+            <div class="small">
+                Prepare hydrogen gas and demonstrate the 'pop' sound test. Show hydrogen reduction of metal oxides.
+            </div>
+        </div>
+
+        <div class="small" style="margin-top: 8px">
+            Follow the steps in order. Hydrogen gas is collected by downward displacement of water. The 'pop' sound indicates hydrogen combustion.
+        </div>
+    </div>
+
+    <div class="footer">
+        Preparation and Properties of Hydrogen — Zn + 2HCl → ZnCl₂ + H₂ | CuO + H₂ → Cu + H₂O
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"
+            }
+        }
+    </script>
+    <script type="module" src="script.js"></script>
+</body>
+</html>
+
