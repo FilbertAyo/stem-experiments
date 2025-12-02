@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wave Behavior in Ripple Tank — Interactive Experiment</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div id="container">
+        <canvas id="waveCanvas"></canvas>
+    </div>
+
+    <div class="logo">
+        <img src="../../../images/logo-dark.png" alt="STEM Lab">
+    </div>
+
+    <div class="ui" id="controls">
+        <h3>Wave Behavior in Ripple Tank</h3>
+
+        <div class="section-title">Wave Source</div>
+        <div class="button-group">
+            <button id="planeWaveBtn" class="active">Plane Waves</button>
+            <button id="pointSourceBtn">Point Source</button>
+            <button id="twoSourcesBtn">Two Sources</button>
+        </div>
+
+        <div class="section-title">Wave Properties</div>
+        <div class="row">
+            <label>Frequency</label>
+            <input id="frequencyRange" type="range" min="1" max="10" step="0.5" value="3" />
+            <div id="frequencyVal" class="small">3.0 Hz</div>
+        </div>
+        <div class="row">
+            <label>Amplitude</label>
+            <input id="amplitudeRange" type="range" min="5" max="30" step="1" value="15" />
+            <div id="amplitudeVal" class="small">15</div>
+        </div>
+        <div class="row">
+            <label>Wave Speed</label>
+            <input id="speedRange" type="range" min="50" max="200" step="10" value="100" />
+            <div id="speedVal" class="small">100 px/s</div>
+        </div>
+
+        <div class="section-title">Demonstrations</div>
+        <div class="button-group">
+            <button id="reflectionBtn">Reflection</button>
+            <button id="refractionBtn">Refraction</button>
+            <button id="diffractionBtn">Diffraction</button>
+            <button id="interferenceBtn">Interference</button>
+        </div>
+
+        <div class="button-group" style="margin-top: 6px;">
+            <button id="clearBtn" class="secondary">Clear All</button>
+            <button id="pauseBtn" class="secondary">Pause</button>
+        </div>
+
+        <div class="section-title">Info</div>
+        <div class="info-panel" id="infoPanel">
+            <p><strong>Objective:</strong> Demonstrate reflection, refraction, diffraction, and interference of waves.</p>
+            <p><strong>Current Mode:</strong> <span id="currentMode">Plane Waves</span></p>
+        </div>
+
+        <div class="formula-box">
+            <strong>Wave Properties:</strong>
+            <div class="small">v = f × λ (speed = frequency × wavelength)</div>
+            <div class="small" style="margin-top: 4px;">Angle of incidence = Angle of reflection</div>
+        </div>
+    </div>
+
+    <div class="footer">
+        Wave Behavior in Ripple Tank — Reflection • Refraction • Diffraction • Interference
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+

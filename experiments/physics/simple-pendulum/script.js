@@ -3,9 +3,9 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 // ============ Constants ============
 const G = 9.81; // m/s² (what we're trying to measure)
-const PIVOT_HEIGHT = 0.8; // Height of pivot point
-const BOB_RADIUS = 0.08; // Radius of pendulum bob
-const STRING_THICKNESS = 0.008;
+const PIVOT_HEIGHT = 1.5; // Height of pivot point (increased for better visibility)
+const BOB_RADIUS = 0.12; // Radius of pendulum bob (increased for visibility)
+const STRING_THICKNESS = 0.015; // Increased for visibility
 
 // ============ State ============
 let state = {
@@ -28,41 +28,46 @@ const container = document.getElementById('container');
 const sceneEl = document.getElementById('scene');
 
 if (!sceneEl) {
-  console.error('Scene element not found!');
+  console.error('ERROR: Scene element not found! Make sure #scene div exists in HTML.');
 }
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xe8e8e8);
 
 const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.set(1.2, 0.6, 1.2);
-camera.lookAt(0, 0.4, 0);
+camera.position.set(0, 1.5, 3);
+camera.lookAt(0, 1, 0);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.domElement.style.display = 'block';
+renderer.domElement.style.width = '100%';
+renderer.domElement.style.height = '100%';
 
 if (sceneEl) {
   sceneEl.appendChild(renderer.domElement);
+  console.log('Renderer canvas appended to scene element');
 } else {
-  console.error('Cannot append renderer - scene element not found');
+  console.error('ERROR: Cannot append renderer - scene element not found');
 }
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
-controls.target.set(0, 0.4, 0);
-controls.minDistance = 0.8;
-controls.maxDistance = 5;
+controls.target.set(0, 1, 0);
+controls.minDistance = 1.5;
+controls.maxDistance = 8;
 controls.update();
 
 // ============ Lighting ============
-scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.0));
+const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x888888, 1.5);
+scene.add(hemisphereLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
-directionalLight.position.set(5, 10, 5);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+directionalLight.position.set(5, 10, 7);
 directionalLight.castShadow = true;
 directionalLight.shadow.mapSize.width = 2048;
 directionalLight.shadow.mapSize.height = 2048;
@@ -74,7 +79,7 @@ directionalLight.shadow.camera.top = 5;
 directionalLight.shadow.camera.bottom = -5;
 scene.add(directionalLight);
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
 scene.add(ambientLight);
 
 // ============ Materials ============
@@ -113,15 +118,15 @@ const groundMaterial = new THREE.MeshStandardMaterial({
 // Stand/Support
 const standGroup = new THREE.Group();
 
-// Vertical post
-const postGeometry = new THREE.CylinderGeometry(0.02, 0.02, PIVOT_HEIGHT, 16);
+// Vertical post (made thicker for visibility)
+const postGeometry = new THREE.CylinderGeometry(0.05, 0.05, PIVOT_HEIGHT, 16);
 const postMesh = new THREE.Mesh(postGeometry, standMaterial);
 postMesh.position.set(0, PIVOT_HEIGHT / 2, 0);
 postMesh.castShadow = true;
 standGroup.add(postMesh);
 
-// Horizontal support
-const supportGeometry = new THREE.BoxGeometry(0.3, 0.02, 0.02);
+// Horizontal support (made thicker for visibility)
+const supportGeometry = new THREE.BoxGeometry(0.5, 0.05, 0.05);
 const supportMesh = new THREE.Mesh(supportGeometry, standMaterial);
 supportMesh.position.set(0, PIVOT_HEIGHT, 0);
 supportMesh.castShadow = true;
@@ -129,8 +134,8 @@ standGroup.add(supportMesh);
 
 scene.add(standGroup);
 
-// Pivot point (small sphere)
-const pivotGeometry = new THREE.SphereGeometry(0.015, 16, 16);
+// Pivot point (made larger for visibility)
+const pivotGeometry = new THREE.SphereGeometry(0.04, 16, 16);
 const pivotMesh = new THREE.Mesh(pivotGeometry, pivotMaterial);
 pivotMesh.position.set(0, PIVOT_HEIGHT, 0);
 pivotMesh.castShadow = true;
@@ -178,13 +183,23 @@ referenceLineGeometry.setFromPoints(refLinePoints);
 referenceLineGeometry.computeLineDistances();
 referenceLine.visible = true;
 
-// Ground/Table
-const groundGeometry = new THREE.PlaneGeometry(4, 4);
+// Ground/Table (made larger)
+const groundGeometry = new THREE.PlaneGeometry(6, 6);
 const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
 groundMesh.rotation.x = -Math.PI / 2;
 groundMesh.position.y = 0;
 groundMesh.receiveShadow = true;
 scene.add(groundMesh);
+
+// Add grid helper for debugging
+const gridHelper = new THREE.GridHelper(6, 10, 0x888888, 0xcccccc);
+gridHelper.position.y = 0.01;
+scene.add(gridHelper);
+
+// Add axes helper for debugging
+const axesHelper = new THREE.AxesHelper(2);
+axesHelper.position.y = 0.1;
+scene.add(axesHelper);
 
 // Length indicator
 function createLengthIndicator() {
@@ -208,6 +223,17 @@ function createLengthIndicator() {
 const lengthIndicator = createLengthIndicator();
 lengthIndicator.group.position.set(0.15, PIVOT_HEIGHT, 0);
 scene.add(lengthIndicator.group);
+
+// Add a test cube to verify scene is rendering (can be removed later)
+const testGeometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
+const testMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+const testCube = new THREE.Mesh(testGeometry, testMaterial);
+testCube.position.set(0, PIVOT_HEIGHT + 0.3, 0);
+scene.add(testCube);
+console.log('Test cube added at position:', testCube.position);
+
+console.log('Scene setup complete. Total objects in scene:', scene.children.length);
+console.log('Scene children:', scene.children.map(c => c.type || c.constructor.name));
 
 // ============ Physics ============
 
@@ -501,8 +527,8 @@ resetViewBtn.addEventListener('click', () => {
   const startTime = Date.now();
   const startPos = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
   const startTarget = { x: controls.target.x, y: controls.target.y, z: controls.target.z };
-  const defaultPos = { x: 1.2, y: 0.6, z: 1.2 };
-  const defaultTarget = { x: 0, y: 0.4, z: 0 };
+  const defaultPos = { x: 0, y: 1.5, z: 3 };
+  const defaultTarget = { x: 0, y: 1, z: 0 };
   
   function animateCamera() {
     const elapsed = Date.now() - startTime;
@@ -578,39 +604,45 @@ window.addEventListener('resize', () => {
 
 // ============ Initialize ============
 function init() {
-  try {
-    console.log('Initializing pendulum experiment with Three.js...');
-    
-    // Set initial angle
-    state.angle = (state.initialAngle * Math.PI) / 180;
-    state.lastAngle = state.angle;
-    
-    // Update visual
-    updatePendulumVisual();
-    console.log('Pendulum visual updated');
-    
-    // Update UI
-    updateUI();
-    updateDataTable();
-    updateGraph();
-    
-    // Set button states
-    if (stopBtn) stopBtn.disabled = true;
-    
-    // Start animation loop
-    console.log('Starting animation loop...');
-    animate();
-    
-    console.log('Initialization complete!');
-  } catch (error) {
-    console.error('Error initializing pendulum:', error);
-    console.error('Stack trace:', error.stack);
+  console.log('=== Initializing pendulum ===');
+  console.log('Renderer:', renderer);
+  console.log('Camera position:', camera.position);
+  console.log('Camera looking at:', camera.getWorldDirection(new THREE.Vector3()));
+  console.log('Scene background:', scene.background);
+  console.log('Scene children count:', scene.children.length);
+  console.log('Stand group children:', standGroup.children.length);
+  console.log('Pendulum group children:', pendulumGroup.children.length);
+  
+  // Set initial angle
+  state.angle = (state.initialAngle * Math.PI) / 180;
+  state.lastAngle = state.angle;
+  
+  updatePendulumVisual();
+  updateUI();
+  updateDataTable();
+  updateGraph();
+  
+  if (stopBtn) {
+    stopBtn.disabled = true;
   }
+  
+  // Render once to verify
+  renderer.render(scene, camera);
+  console.log('Initial render complete');
+  console.log('Canvas dimensions:', renderer.domElement.width, 'x', renderer.domElement.height);
+  console.log('Canvas visible:', renderer.domElement.offsetWidth > 0 && renderer.domElement.offsetHeight > 0);
+  
+  animate();
+  console.log('Animation loop started');
 }
 
-// Wait for DOM to be ready
+// Ensure DOM is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, initializing...');
+    init();
+  });
 } else {
+  console.log('DOM already ready, initializing...');
   init();
 }
