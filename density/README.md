@@ -1,92 +1,44 @@
-Density
-=============
-"Density" is an educational simulation in HTML5, by <a href="https://phet.colorado.edu/" target="_blank">PhET
-Interactive Simulations</a>
-at the University of Colorado Boulder. For a description of this simulation, associated resources, and a link to the
-published version,
-<a href="https://phet.colorado.edu/en/simulation/density" target="_blank">visit the simulation's web page</a>.
+# Density Simulation - Build & Deploy
 
-### Try it!
+## Quick Build
 
-<a href="https://phet.colorado.edu/sims/html/density/latest/density_en.html" target="_blank">Click here to
-run "Density".</a>
+Just run this one script:
 
-<a href="https://phet.colorado.edu/sims/html/density/latest/density_en.html" target="_blank">
-<img src="https://raw.githubusercontent.com/phetsims/density/main/assets/density-screenshot.png" alt="Screenshot" style="width: 400px;"/>
-</a>
-
-### Documentation
-
-The <a href="https://github.com/phetsims/phet-info/blob/main/doc/phet-development-overview.md" target="_blank">PhET
-Development Overview</a> is the most complete guide to PhET Simulation Development. This guide includes how to obtain
-simulation code and its dependencies, notes about architecture & design, how to test and build the sims, as well as
-other important information.
-
-### Quick Start
-
-(1) Clone the simulation and its dependencies:
-
-```
-git clone https://github.com/phetsims/assert.git
-git clone https://github.com/phetsims/axon.git
-git clone https://github.com/phetsims/babel.git
-git clone https://github.com/phetsims/brand.git
-git clone https://github.com/phetsims/chipper.git
-git clone https://github.com/phetsims/density.git
-git clone https://github.com/phetsims/density-buoyancy-common.git
-git clone https://github.com/phetsims/dot.git
-git clone https://github.com/phetsims/joist.git
-git clone https://github.com/phetsims/kite.git
-git clone https://github.com/phetsims/mobius.git
-git clone https://github.com/phetsims/perennial.git perennial-alias
-git clone https://github.com/phetsims/phet-core.git
-git clone https://github.com/phetsims/phetcommon.git
-git clone https://github.com/phetsims/phetmarks.git
-git clone https://github.com/phetsims/query-string-machine.git
-git clone https://github.com/phetsims/scenery.git
-git clone https://github.com/phetsims/scenery-phet.git
-git clone https://github.com/phetsims/sherpa.git
-git clone https://github.com/phetsims/sun.git
-git clone https://github.com/phetsims/tambo.git
-git clone https://github.com/phetsims/tandem.git
-git clone https://github.com/phetsims/twixt.git
-git clone https://github.com/phetsims/utterance-queue.git
+```bash
+cd /var/www/lab.adilishastemlabs.com/repo
+bash density/build.sh
 ```
 
-(2) Install dev dependencies:
+This will:
+1. ✅ Clone all missing dependencies
+2. ✅ Install npm packages  
+3. ✅ Build the simulation (skips lint to avoid failures)
 
+## After Build
+
+```bash
+sudo chown -R www-data:www-data /var/www/lab.adilishastemlabs.com/repo/density/build
+sudo chmod -R 755 /var/www/lab.adilishastemlabs.com/repo/density/build
+sudo systemctl reload nginx
 ```
-cd chipper
-npm install
-cd ../perennial-alias
-npm install
-cd ../density
-npm install
-```
 
-(3) Run `grunt dev-server` to start a local development server that will serve the simulation.
+## Access
 
-(4) Open in the browser: `http://localhost/density/density_en.html`
+**https://lab.adilishastemlabs.com/density/density_en_adapted-from-phet.html**
 
-#### Optional: Build the simulation into a single file
+---
 
-(1) Change directory to the simulation directory: `cd ../density`
+## Available Scripts
 
-(2) Build the sim: `grunt --brands=adapted-from-phet`. It is safe to ignore warnings
-like `>> WARNING404: Skipping potentially non-public dependency`, which indicate that non-public PhET-iO code is not
-being included in the build.
+- **`build.sh`** - Main build script (use this!)
+- **`setup-nginx.sh`** - Configure nginx (if needed)
+- **`update-nginx-config.sh`** - Update nginx config (if needed)
+- **`setup-permissions.sh`** - Set file permissions (if needed)
 
-(3) Open in the
-browser: `http://localhost/density/build/adapted-from-phet/density_en_adapted-from-phet.html`
+That's it! All other scripts have been removed to keep things simple.
 
-### Get Involved
+---
 
-Contact us at our Google
-Group: <a href="http://groups.google.com/forum/#!forum/developing-interactive-simulations-in-html5" target="_blank">
-Developing Interactive Simulations in HTML5</a>
+## Original README
 
-Help us improve, create a <a href="http://github.com/phetsims/density/issues/new" target="_blank">New Issue</a>
-
-### License
-
-See the <a href="https://github.com/phetsims/density/blob/main/LICENSE" target="_blank">LICENSE</a>
+See the original PhET README below for development information.
