@@ -1,0 +1,95 @@
+{
+  "comment": "# density 1.3.0-dev.0 Wed Jan 14 2026 16:03:40 GMT+0300 (East Africa Time)",
+  "assert": {
+    "sha": "1a4637cfff70e7e8b0844dc43848a86ae89b4cf5",
+    "branch": "main"
+  },
+  "axon": {
+    "sha": "eb375db9e99ab4b104e99badc492059c5a1c6ccf",
+    "branch": "main"
+  },
+  "brand": {
+    "sha": "0017406b43899b7acc9b4b2d942d71b72568b514",
+    "branch": "main"
+  },
+  "chipper": {
+    "sha": "51348a127e60b754195629300419a4291ee05389",
+    "branch": "main"
+  },
+  "density": {
+    "sha": "e3687daafcb23dd0f39415dbff2e9334274d7f9b",
+    "branch": "main"
+  },
+  "density-buoyancy-common": {
+    "sha": "43e35f2826510d6105d638b7aac95c2ee4c1f183",
+    "branch": "main"
+  },
+  "dot": {
+    "sha": "107909d62670ecafbeb63cd92ce02cfa1a6e06a3",
+    "branch": "main"
+  },
+  "joist": {
+    "sha": "c563823c777b42ab8efae9324d2e0d4445a2e411",
+    "branch": "main"
+  },
+  "kite": {
+    "sha": "c2247535a060fcc9cf5d3b82f76d8a65ee451d37",
+    "branch": "main"
+  },
+  "mobius": {
+    "sha": "d284d8cbbf051a895068b384ae93be89d7ff5142",
+    "branch": "main"
+  },
+  "perennial-alias": {
+    "sha": "554807c8730ce4c583a69be909306ebf7183e557",
+    "branch": "main"
+  },
+  "phet-core": {
+    "sha": "6588af4794051c43cc419fbad2cb15ed2377294a",
+    "branch": "main"
+  },
+  "phetcommon": {
+    "sha": "6343150359f1fafb499144c7ea35abc465ebf47b",
+    "branch": "main"
+  },
+  "phetmarks": {
+    "sha": "1ea943a9f23a38646e764ed7cb679c7381c2df8b",
+    "branch": "main"
+  },
+  "query-string-machine": {
+    "sha": "e0b764e61a19a08a747c0b2152656bac5420a0b1",
+    "branch": "main"
+  },
+  "scenery": {
+    "sha": "8f807779811df7fd700b4ff2a4ce3d20d24e33cd",
+    "branch": "main"
+  },
+  "scenery-phet": {
+    "sha": "2d4c67406f1139a2e8ab2be7ed0e06463d596b7b",
+    "branch": "main"
+  },
+  "sherpa": {
+    "sha": "a4f66f020c430423daa562a5e2cb4fb8daf2a4ad",
+    "branch": "main"
+  },
+  "sun": {
+    "sha": "b9a59433d0df32129ea913d0b681ac4a25c2cb67",
+    "branch": "main"
+  },
+  "tambo": {
+    "sha": "691b39440cac26e562137a052fc27629d2d5897c",
+    "branch": "main"
+  },
+  "tandem": {
+    "sha": "7a397f84d2d2a03529832e9093fe3b1fc2e37c18",
+    "branch": "main"
+  },
+  "twixt": {
+    "sha": "49b9b291339b3474036568ac6eddf71c973958cb",
+    "branch": "main"
+  },
+  "utterance-queue": {
+    "sha": "1294809e5cc582aeb9b647219e1e4c17f708ba5b",
+    "branch": "main"
+  }
+}
