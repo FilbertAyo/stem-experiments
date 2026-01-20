@@ -7,6 +7,10 @@ build/
 dist/
 *.log
 
+# But include production builds for experiments
+!density/build/
+!models-of-the-hydrogen-atom/build/
+
 # IDE
 .vscode/
 .idea/
