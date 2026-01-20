@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Adilisha STEM Labs - Interactive Science Experiments</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        .experiments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .experiment-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .experiment-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4em;
+        }
+
+        .card-content {
+            padding: 25px;
+        }
+
+        .card-title {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .card-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .card-topics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .topic-tag {
+            background: #f0f0f0;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            color: #555;
+        }
+
+        .launch-button {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s ease;
+        }
+
+        .launch-button:hover {
+            opacity: 0.9;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            padding: 30px;
+            font-size: 0.95em;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .subtitle {
+                font-size: 1.1em;
+            }
+
+            .experiments-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔬 Adilisha STEM Labs</h1>
+            <p class="subtitle">Explore Interactive Science Experiments</p>
+        </header>
+
+        <div class="experiments-grid">
+            <!-- Density Experiment -->
+            <a href="/density/density_en.html" class="experiment-card">
+                <div class="card-image">
+                    🧪
+                </div>
+                <div class="card-content">
+                    <h2 class="card-title">Density</h2>
+                    <p class="card-description">
+                        Explore the relationship between mass, volume, and density. Discover why some objects float while others sink, and learn about the unique properties of different materials.
+                    </p>
+                    <div class="card-topics">
+                        <span class="topic-tag">Physics</span>
+                        <span class="topic-tag">Matter</span>
+                        <span class="topic-tag">Buoyancy</span>
+                    </div>
+                    <span class="launch-button">Launch Experiment →</span>
+                </div>
+            </a>
+
+            <!-- Models of the Hydrogen Atom -->
+            <a href="/models-of-the-hydrogen-atom/models-of-the-hydrogen-atom_en.html" class="experiment-card">
+                <div class="card-image">
+                    ⚛️
+                </div>
+                <div class="card-content">
+                    <h2 class="card-title">Models of the Hydrogen Atom</h2>
+                    <p class="card-description">
+                        Journey through the evolution of atomic models from classical to quantum mechanics. Visualize electron behavior, energy levels, and spectral lines in this interactive simulation.
+                    </p>
+                    <div class="card-topics">
+                        <span class="topic-tag">Chemistry</span>
+                        <span class="topic-tag">Quantum Physics</span>
+                        <span class="topic-tag">Atomic Structure</span>
+                    </div>
+                    <span class="launch-button">Launch Experiment →</span>
+                </div>
+            </a>
+        </div>
+
+        <footer>
+            <p>&copy; 2026 Adilisha STEM Labs. All experiments adapted from PhET Interactive Simulations.</p>
+            <p>Empowering students through interactive learning experiences.</p>
+        </footer>
+    </div>
+</body>
+</html>

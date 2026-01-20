@@ -1,9 +1,27 @@
-.idea/
-build/
+# Node modules
 node_modules/
-*.iml
+**/node_modules/
+
+# Build outputs
+build/
+dist/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
 .DS_Store
-.DS_Store?
-*.sublime-project
-*.sublime-workspace
-.eslintcache
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+
+# Environment
+.env
+.env.local
